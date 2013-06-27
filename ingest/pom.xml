@@ -18,42 +18,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>accumulo-wikisearch</artifactId>
     <groupId>org.apache.accumulo</groupId>
+    <artifactId>accumulo-wikisearch</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-
   <artifactId>wikisearch-ingest</artifactId>
   <name>wikisearch-ingest</name>
-
   <dependencies>
-    <dependency>
-      <groupId>org.apache.accumulo</groupId>
-      <artifactId>accumulo-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.google.collections</groupId>
       <artifactId>google-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-wikipedia</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.protobuf</groupId>
@@ -63,8 +37,31 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-wikipedia</artifactId>
+    </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -73,10 +70,10 @@
         <executions>
           <execution>
             <id>copy-dependencies</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <outputDirectory>lib</outputDirectory>
               <!-- just grab the non-provided runtime dependencies -->
@@ -97,5 +94,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

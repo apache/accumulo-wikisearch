@@ -18,41 +18,122 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>accumulo-examples</artifactId>
     <groupId>org.apache.accumulo</groupId>
-    <version>1.5.0-SNAPSHOT</version>
+    <artifactId>accumulo-examples</artifactId>
+    <version>1.4.3</version>
   </parent>
   <artifactId>accumulo-wikisearch</artifactId>
   <packaging>pom</packaging>
   <name>accumulo-wikisearch</name>
-
   <modules>
     <module>ingest</module>
     <module>query</module>
     <module>query-war</module>
   </modules>
-
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.accumulo>${project.version}</version.accumulo>
+    <version.commons-codec>1.5</version.commons-codec>
+    <version.commons-jexl>2.0.1</version.commons-jexl>
+    <version.commons-lang>2.4</version.commons-lang>
+    <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
+    <version.googlecollections>1.0</version.googlecollections>
+    <version.jaxrs>2.1.0.GA</version.jaxrs>
+    <version.kryo>1.04</version.kryo>
+    <version.libthrift>0.6.1</version.libthrift>
+    <version.log4j>1.2.16</version.log4j>
+    <version.log4j-extras>1.0</version.log4j-extras>
+    <version.lucene>3.0.2</version.lucene>
+    <version.lucene-analyzers>3.0.2</version.lucene-analyzers>
+    <version.lucene-wikipedia>3.0.2</version.lucene-wikipedia>
+    <version.minlog>1.2</version.minlog>
+    <version.protobuf>2.3.0</version.protobuf>
+    <version.zookeeper>3.3.1</version.zookeeper>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.collections</groupId>
+        <artifactId>google-collections</artifactId>
+        <version>${version.googlecollections}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${version.protobuf}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode</groupId>
+        <artifactId>kryo</artifactId>
+        <version>${version.kryo}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode</groupId>
+        <artifactId>minlog</artifactId>
+        <version>${version.minlog}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-core</artifactId>
+        <version>1.11</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.jersey</groupId>
+        <artifactId>jersey-server</artifactId>
+        <version>1.11</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${version.commons-codec}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${version.commons-lang}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-jexl</artifactId>
+        <version>${version.commons-jexl}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-analyzers</artifactId>
+        <version>${version.lucene-analyzers}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-core</artifactId>
+        <version>${version.lucene}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-wikipedia</artifactId>
+        <version>${version.lucene-wikipedia}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <repositories>
     <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>central</id>
       <name>Maven Repository Switchboard</name>
-      <layout>default</layout>
       <url>http://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
+      <layout>default</layout>
     </repository>
     <repository>
-      <id>java.net</id>
-      <name>java.net</name>
-      <layout>default</layout>
-      <url>https://maven.java.net/content/groups/public</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
+      <id>java.net</id>
+      <name>java.net</name>
+      <url>https://maven.java.net/content/groups/public</url>
+      <layout>default</layout>
     </repository>
   </repositories>
-
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
@@ -126,16 +207,16 @@
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
       <plugin>
-        <inherited>false</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>false</inherited>
         <executions>
           <execution>
             <id>copy-dependencies</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <outputDirectory>../../lib</outputDirectory>
               <!-- just grab the non-provided runtime dependencies -->
@@ -148,90 +229,4 @@
       </plugin>
     </plugins>
   </build>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.commons-lang>2.4</version.commons-lang>
-    <version.accumulo>${project.version}</version.accumulo>
-    <version.commons-jexl>2.0.1</version.commons-jexl>
-    <version.commons-codec>1.5</version.commons-codec>
-    <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
-    <version.jaxrs>2.1.0.GA</version.jaxrs>
-    <version.kryo>1.04</version.kryo>
-    <version.log4j>1.2.16</version.log4j>
-    <version.log4j-extras>1.0</version.log4j-extras>
-    <version.lucene>3.0.2</version.lucene>
-    <version.lucene-analyzers>3.0.2</version.lucene-analyzers>
-    <version.lucene-wikipedia>3.0.2</version.lucene-wikipedia>
-    <version.protobuf>2.3.0</version.protobuf>
-    <version.googlecollections>1.0</version.googlecollections>
-    <version.libthrift>0.6.1</version.libthrift>
-    <version.zookeeper>3.3.1</version.zookeeper>
-    <version.minlog>1.2</version.minlog>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${version.commons-codec}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${version.commons-lang}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.collections</groupId>
-        <artifactId>google-collections</artifactId>
-        <version>${version.googlecollections}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.googlecode</groupId>
-        <artifactId>kryo</artifactId>
-        <version>${version.kryo}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-core</artifactId>
-        <version>${version.lucene}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-wikipedia</artifactId>
-        <version>${version.lucene-wikipedia}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-analyzers</artifactId>
-        <version>${version.lucene-analyzers}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java</artifactId>
-        <version>${version.protobuf}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-jexl</artifactId>
-        <version>${version.commons-jexl}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.googlecode</groupId>
-        <artifactId>minlog</artifactId>
-        <version>${version.minlog}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-server</artifactId>
-        <version>1.11</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-core</artifactId>
-        <version>1.11</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
 </project>

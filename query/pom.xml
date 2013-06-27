@@ -16,19 +16,64 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>accumulo-wikisearch</artifactId>
     <groupId>org.apache.accumulo</groupId>
+    <artifactId>accumulo-wikisearch</artifactId>
     <version>1.5.0-SNAPSHOT</version>
   </parent>
-
   <artifactId>wikisearch-query</artifactId>
   <packaging>ejb</packaging>
   <name>wikisearch-query</name>
   <dependencies>
     <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode</groupId>
+      <artifactId>kryo</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.accumulo</groupId>
       <artifactId>accumulo-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>wikisearch-ingest</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-jexl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-core</artifactId>
     </dependency>
     <dependency>
       <groupId>javaee</groupId>
@@ -37,54 +82,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-jexl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode</groupId>
-      <artifactId>kryo</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.accumulo</groupId>
-      <artifactId>wikisearch-ingest</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
     </dependency>
   </dependencies>
   <build>
@@ -95,10 +95,10 @@
         <executions>
           <execution>
             <id>copy-dependencies</id>
-            <phase>process-resources</phase>
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
               <outputDirectory>lib</outputDirectory>
               <!-- just grab the non-provided runtime dependencies -->
@@ -135,5 +135,4 @@
       </plugin>
     </plugins>
   </build>
-  <modelVersion>4.0.0</modelVersion>
 </project>

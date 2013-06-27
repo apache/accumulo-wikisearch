@@ -34,12 +34,12 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.mock.MockInstance;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.util.ContextFactory;
 import org.apache.accumulo.examples.wikisearch.ingest.WikipediaConfiguration;
 import org.apache.accumulo.examples.wikisearch.ingest.WikipediaIngester;
 import org.apache.accumulo.examples.wikisearch.ingest.WikipediaInputFormat.WikipediaInputSplit;
@@ -58,6 +58,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
 import org.apache.log4j.Level;
@@ -120,14 +121,15 @@ public class TestQueryLogic {
     conf.set(WikipediaConfiguration.NUM_GROUPS, "1");
     
     MockInstance i = new MockInstance();
-    c = i.getConnector("root", "pass");
+    c = i.getConnector("root", new PasswordToken(""));
     WikipediaIngester.createTables(c.tableOperations(), TABLE_NAME, false);
     for (String table : TABLE_NAMES) {
       writerMap.put(new Text(table), c.createBatchWriter(table, 1000L, 1000L, 1));
     }
     
-    TaskAttemptContext context = ContextFactory.createTaskAttemptContext(conf);
-    
+    TaskAttemptID id = new TaskAttemptID();
+    TaskAttemptContext context = new TaskAttemptContext(conf, id);
+
     RawLocalFileSystem fs = new RawLocalFileSystem();
     fs.setConf(conf);
     
@@ -148,7 +150,7 @@ public class TestQueryLogic {
     WikipediaMapper mapper = new WikipediaMapper();
     
     // Load data into Mock Accumulo
-    Mapper<LongWritable,Text,Text,Mutation>.Context con = ContextFactory.createMapContext(mapper, context, rr, rw, oc, sr, split);
+    Mapper<LongWritable,Text,Text,Mutation>.Context con = mapper.new Context(conf, id, rr, rw, oc, sr, split);
     mapper.run(con);
     
     // Flush and close record writers.

@@ -31,12 +31,12 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.accumulo.core.util.ContextFactory;
 import org.apache.accumulo.examples.wikisearch.ingest.WikipediaInputFormat.WikipediaInputSplit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,7 +97,8 @@ public class AggregatingRecordReaderTest {
     conf.set(AggregatingRecordReader.START_TOKEN, "<doc");
     conf.set(AggregatingRecordReader.END_TOKEN, "</doc>");
     conf.set(AggregatingRecordReader.RETURN_PARTIAL_MATCHES, Boolean.toString(true));
-    ctx = ContextFactory.createTaskAttemptContext(conf);
+    TaskAttemptID id = new TaskAttemptID();
+    ctx = new TaskAttemptContext(conf, id);
     XPath xp = xpFactory.newXPath();
     EXPR_A = xp.compile("/doc/a");
     EXPR_B = xp.compile("/doc/b");
