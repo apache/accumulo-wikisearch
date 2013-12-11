@@ -39,7 +39,7 @@ LIBJARS=`echo $CLASSPATH | sed 's/^://' | sed 's/:/,/g'`
 # Map/Reduce job
 #
 JAR=$SCRIPT_DIR/../lib/wikisearch-ingest-1.4.5-SNAPSHOT.jar
-CONF=$SCRIPT_DIR/../conf/wikipedia.xml
+CONF=$SCRIPT_DIR/../conf/wikipedia_parallel.xml
 HDFS_DATA_DIR=$1
 export HADOOP_CLASSPATH=$CLASSPATH
 echo "hadoop jar $JAR org.apache.accumulo.examples.wikisearch.ingest.WikipediaPartitionedIngester -libjars $LIBJARS -conf $CONF -Dwikipedia.input=${HDFS_DATA_DIR}"
