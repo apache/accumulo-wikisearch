@@ -63,6 +63,11 @@
         <executions>
           <execution>
             <id>enforce-mvn</id>
+            <configuration>
+              <rules>
+                <DependencyConvergence/>
+              </rules>
+            </configuration>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -226,6 +231,12 @@
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-wikipedia</artifactId>
         <version>${version.lucene-wikipedia}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.google.protobuf</groupId>
@@ -246,6 +257,24 @@
       	<groupId>com.sun.jersey</groupId>
       	<artifactId>jersey-server</artifactId>
       	<version>1.11</version>
+        <exclusions>
+          <exclusion>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <!-- XXX This is just to fix the dependency conflict in Hadoop 1 -->
+      <dependency>
+        <groupId>net.java.dev.jets3t</groupId>
+        <artifactId>jets3t</artifactId>
+        <version>0.7.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
