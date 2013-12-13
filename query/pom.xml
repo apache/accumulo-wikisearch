@@ -175,6 +175,29 @@
           <artifactId>hadoop-client</artifactId>
         </dependency>
       </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-dependencies</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>lib</outputDirectory>
+                  <!-- just grab the non-provided runtime dependencies -->
+                  <includeArtifactIds>commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-client,hadoop-common,hadoop-hdfs,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,cloudtrace</includeArtifactIds>
+                  <excludeTransitive>false</excludeTransitive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 

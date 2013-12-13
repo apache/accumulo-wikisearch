@@ -38,11 +38,11 @@
 	1. Copy the query/src/main/resources/META-INF/ejb-jar.xml.example file to 
 	   query/src/main/resources/META-INF/ejb-jar.xml. Modify to the file to contain the same 
 	   information that you put into the wikipedia.xml file from the Ingest step above. 
-	2. Re-build the query distribution by running 'mvn package assembly:single' in the top-level directory. 
+	2. Re-build the query distribution by running 'mvn package assembly:single' in the query module's directory.
         3. Untar the resulting file in the $JBOSS_HOME/server/default directory.
 
               $ cd $JBOSS_HOME/server/default
-              $ tar -xzf $ACCUMULO_HOME/src/examples/wikisearch/query/target/wikisearch-query*.tar.gz
+              $ tar -xzf /some/path/to/wikisearch/query/target/wikisearch-query*.tar.gz
  
            This will place the dependent jars in the lib directory and the EJB jar into the deploy directory.
 	4. Next, copy the wikisearch*.war file in the query-war/target directory to $JBOSS_HOME/server/default/deploy. 
@@ -51,11 +51,9 @@
 			setauths -u <user> -s all,enwiki,eswiki,frwiki,fawiki
 	7. Copy the following jars to the $ACCUMULO_HOME/lib/ext directory from the $JBOSS_HOME/server/default/lib directory:
 	
-		commons-lang*.jar
 		kryo*.jar
 		minlog*.jar
 		commons-jexl*.jar
-		guava*.jar
 		
 	8. Copy the $JBOSS_HOME/server/default/deploy/wikisearch-query*.jar to $ACCUMULO_HOME/lib/ext.
 
