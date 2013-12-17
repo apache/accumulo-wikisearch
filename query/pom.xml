@@ -99,7 +99,7 @@
         <executions>
           <execution>
             <id>copy-dependencies</id>
-            <phase>process-resources</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
@@ -183,7 +183,7 @@
             <executions>
               <execution>
                 <id>copy-dependencies</id>
-                <phase>process-resources</phase>
+                <phase>prepare-package</phase>
                 <goals>
                   <goal>copy-dependencies</goal>
                 </goals>
