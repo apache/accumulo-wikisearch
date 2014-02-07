@@ -129,7 +129,7 @@ public class TestQueryLogic {
     
     TaskAttemptID id = new TaskAttemptID();
     TaskAttemptContext context = new TaskAttemptContext(conf, id);
-
+    
     RawLocalFileSystem fs = new RawLocalFileSystem();
     fs.setConf(conf);
     

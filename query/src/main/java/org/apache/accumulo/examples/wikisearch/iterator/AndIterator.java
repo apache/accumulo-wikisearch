@@ -199,7 +199,6 @@ public class AndIterator implements SortedKeyValueIterator<Key,Value> {
         sources[i] = new TermSource(other.sources[i].iter.deepCopy(env), other.sources[i].dataLocation, other.sources[i].term);
       }
     }
-    //other.seekColumnFamilies = other.seekColumnFamilies;
   }
   
   public Key getTopKey() {

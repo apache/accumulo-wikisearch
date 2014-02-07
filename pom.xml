@@ -20,11 +20,12 @@
   <parent>
     <groupId>org.apache.accumulo</groupId>
     <artifactId>accumulo-examples</artifactId>
-    <version>1.4.3</version>
+    <version>1.5.0</version>
   </parent>
   <artifactId>accumulo-wikisearch</artifactId>
   <packaging>pom</packaging>
   <name>accumulo-wikisearch</name>
+
   <modules>
     <module>ingest</module>
     <module>query</module>
@@ -134,6 +135,7 @@
       <layout>default</layout>
     </repository>
   </repositories>
+
   <build>
     <defaultGoal>package</defaultGoal>
     <plugins>
