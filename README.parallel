@@ -52,7 +52,7 @@
 		kryo*.jar
 		minlog*.jar
 		commons-jexl*.jar
-		google-collections*.jar
+		guava*.jar
 		
 	8. Copy the $JBOSS_HOME/server/default/deploy/wikisearch-query*.jar to $ACCUMULO_HOME/lib/ext.
 
