@@ -194,7 +194,7 @@
             </goals>
             <configuration>
               <rules>
-                <DependencyConvergence />
+                <DependencyConvergence/>
               </rules>
             </configuration>
           </execution>
