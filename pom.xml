@@ -17,12 +17,17 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
-    <groupId>org.apache.accumulo</groupId>
-    <artifactId>accumulo-examples</artifactId>
-    <version>1.5.0</version>
+      <groupId>org.apache</groupId>
+      <artifactId>apache</artifactId>
+      <version>14</version>
   </parent>
+
+  <groupId>org.apache.accumulo</groupId>
   <artifactId>accumulo-wikisearch</artifactId>
+  <version>1.5.0</version>
+
   <packaging>pom</packaging>
   <name>accumulo-wikisearch</name>
   <modules>
@@ -33,12 +38,15 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.accumulo>${project.version}</version.accumulo>
+    <version.collections>3.2.1</version.collections>
     <version.commons-codec>1.5</version.commons-codec>
     <version.commons-jexl>2.0.1</version.commons-jexl>
     <version.commons-lang>2.4</version.commons-lang>
     <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
     <version.guava>11.0.2</version.guava>
+    <version.hadoop>1.0.4</version.hadoop>
     <version.jaxrs>2.1.0.GA</version.jaxrs>
+    <version.junit>4.11</version.junit>
     <version.kryo>1.04</version.kryo>
     <version.log4j>1.2.16</version.log4j>
     <version.log4j-extras>1.0</version.log4j-extras>
@@ -52,6 +60,42 @@
   </properties>
   <dependencyManagement>
     <dependencies>
+   <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-fate</artifactId>
+      <version>${version.accumulo}</version>
+   </dependency>
+     <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>${version.hadoop}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>${version.collections}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${version.junit}</version>
+    </dependency>
+     <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${version.zookeeper}</version>
+        <exclusions>
+            <exclusion>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+            </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${version.log4j}</version>
+      </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -144,6 +188,10 @@
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -185,7 +233,17 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.3.1</version>
         <executions>
           <execution>
             <id>enforce-mvn</id>
@@ -201,7 +259,9 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <filesets>
             <fileset>
@@ -214,11 +274,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.8</version>
-      </plugin>
-      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
         <configuration>
           <outputDirectory>lib</outputDirectory>
           <archive>
@@ -236,13 +294,17 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
         <configuration>
           <encoding>UTF-8</encoding>
           <quiet>true</quiet>
@@ -253,17 +315,22 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
         <configuration>
           <outputDirectory>lib</outputDirectory>
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.17</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.8</version>
         <inherited>false</inherited>
         <executions>
           <execution>
