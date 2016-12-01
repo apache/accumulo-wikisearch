@@ -29,13 +29,16 @@ import java.util.regex.Pattern;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.IteratorSetting.Column;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.ClientConfiguration.ClientProperty;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.iterators.user.SummingCombiner;
@@ -236,12 +239,13 @@ public class WikipediaPartitionedIngester extends Configured implements Tool {
       SortingRFileOutputFormat.setPathName(ingestConf, WikipediaConfiguration.bulkIngestDir(ingestConf));
     } else {
       ingestJob.setOutputFormatClass(AccumuloOutputFormat.class);
-      String zookeepers = WikipediaConfiguration.getZookeepers(ingestConf);
-      String instanceName = WikipediaConfiguration.getInstanceName(ingestConf);
+      ClientConfiguration clientConfig = new ClientConfiguration();
+      clientConfig.setProperty(ClientProperty.INSTANCE_NAME, WikipediaConfiguration.getInstanceName(ingestConf));
+      clientConfig.setProperty(ClientProperty.INSTANCE_ZK_HOST, WikipediaConfiguration.getZookeepers(ingestConf));
       String user = WikipediaConfiguration.getUser(ingestConf);
       byte[] password = WikipediaConfiguration.getPassword(ingestConf);
-      AccumuloOutputFormat.setOutputInfo(ingestJob.getConfiguration(), user, password, true, tablename);
-      AccumuloOutputFormat.setZooKeeperInstance(ingestJob.getConfiguration(), instanceName, zookeepers);
+      AccumuloOutputFormat.setConnectorInfo(ingestJob, user, new PasswordToken(password));
+      AccumuloOutputFormat.setZooKeeperInstance(ingestJob, clientConfig);
     }
     
     return ingestJob.waitForCompletion(true) ? 0 : 1;
