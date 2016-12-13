@@ -29,13 +29,16 @@ import java.util.regex.Pattern;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.IteratorSetting.Column;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.ClientConfiguration.ClientProperty;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.iterators.user.SummingCombiner;
@@ -135,9 +138,9 @@ public class WikipediaIngester extends Configured implements Tool {
     conf.set("mapred.map.tasks.speculative.execution", "false");
     
     String tablename = WikipediaConfiguration.getTableName(conf);
-    
-    String zookeepers = WikipediaConfiguration.getZookeepers(conf);
-    String instanceName = WikipediaConfiguration.getInstanceName(conf);
+    ClientConfiguration clientConfig = new ClientConfiguration();
+    clientConfig.setProperty(ClientProperty.INSTANCE_NAME, WikipediaConfiguration.getInstanceName(conf));
+    clientConfig.setProperty(ClientProperty.INSTANCE_ZK_HOST, WikipediaConfiguration.getZookeepers(conf));
     
     String user = WikipediaConfiguration.getUser(conf);
     byte[] password = WikipediaConfiguration.getPassword(conf);
@@ -168,8 +171,8 @@ public class WikipediaIngester extends Configured implements Tool {
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(Mutation.class);
     job.setOutputFormatClass(AccumuloOutputFormat.class);
-    AccumuloOutputFormat.setOutputInfo(job.getConfiguration(), user, password, true, tablename);
-    AccumuloOutputFormat.setZooKeeperInstance(job.getConfiguration(), instanceName, zookeepers);
+    AccumuloOutputFormat.setConnectorInfo(job, user, new PasswordToken(password));
+    AccumuloOutputFormat.setZooKeeperInstance(job, clientConfig);
     
     return job.waitForCompletion(true) ? 0 : 1;
   }

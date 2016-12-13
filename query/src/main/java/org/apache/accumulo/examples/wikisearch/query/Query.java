@@ -43,6 +43,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.examples.wikisearch.logic.ContentLogic;
 import org.apache.accumulo.examples.wikisearch.logic.QueryLogic;
 import org.apache.accumulo.examples.wikisearch.sample.Results;
@@ -179,7 +180,7 @@ public class Query implements IQuery {
     Instance instance = new ZooKeeperInstance(this.instanceName, this.zooKeepers);
     try {
       log.info("Connecting to [instanceName = " + this.instanceName + ", zookeepers = " + this.zooKeepers + ", username = " + this.username + "].");
-      connector = instance.getConnector(this.username, this.password.getBytes());
+      connector = instance.getConnector(this.username, new PasswordToken(this.password.getBytes()));
     } catch (Exception e) {
       throw new EJBException("Error getting connector from instance", e);
     }
@@ -212,7 +213,7 @@ public class Query implements IQuery {
     Instance instance = new ZooKeeperInstance(this.instanceName, this.zooKeepers);
     try {
       log.info("Connecting to [instanceName = " + this.instanceName + ", zookeepers = " + this.zooKeepers + ", username = " + this.username + "].");
-      connector = instance.getConnector(this.username, this.password.getBytes());
+      connector = instance.getConnector(this.username, new PasswordToken(this.password.getBytes()));
     } catch (Exception e) {
       throw new EJBException("Error getting connector from instance", e);
     }

@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.apache.accumulo</groupId>
     <artifactId>accumulo-wikisearch</artifactId>
-    <version>1.5.0</version>
+    <version>1.8.0</version>
   </parent>
 
   <artifactId>wikisearch-query-war</artifactId>

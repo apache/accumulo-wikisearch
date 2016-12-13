@@ -105,17 +105,10 @@ public class SortingRFileOutputFormat extends OutputFormat<Text,Mutation> {
     
     // grab the configuration
     final Configuration conf = attempt.getConfiguration();
-    // create a filename
-    final String filenamePrefix = getPathName(conf);
-    final String taskID = attempt.getTaskAttemptID().toString();
     // grab the max size
     final long maxSize = getMaxBufferSize(conf);
-    // grab the FileSystem
-    final FileSystem fs = FileSystem.get(conf);
-    // create a default AccumuloConfiguration
-    final AccumuloConfiguration acuconf = AccumuloConfiguration.getDefaultConfiguration();
     
-    return new BufferingRFileRecordWriter(maxSize, acuconf, conf, filenamePrefix, taskID, fs);
+    return new BufferingRFileRecordWriter(maxSize, conf);
   }
   
 }
