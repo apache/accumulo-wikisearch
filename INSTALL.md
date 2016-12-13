@@ -27,7 +27,8 @@ Instructions for installing and running the Accumulo Wikisearch example.
 	 You will want to grab the files with the link name of pages-articles.xml.bz2. Though not strictly
 	 required, the ingest will go more quickly if the files are decompressed:
 
-        $ bunzip2 < enwiki-*-pages-articles.xml.bz2 | hadoop fs -put - /wikipedia/enwiki-pages-articles.xml
+        $ bunzip2 enwiki-*-pages-articles.xml.bz2
+        $ hadoop fs -put enwiki-*-pages-articles.xml /wikipedia/enwiki-pages-articles.xml
 
 ### Instructions
 	
@@ -39,7 +40,7 @@ Instructions for installing and running the Accumulo Wikisearch example.
         $ cp wikipedia.xml.example wikipedia.xml
         $ vim wikipedia.xml
  
-1. Copy `ingest/lib/wikisearch-*.jar` and `ingest/lib/protobuf*.jar` to `$ACCUMULO_HOME/lib/ext`
+1. Copy `ingest/lib/wikisearch-*.jar` to `$ACCUMULO_HOME/lib/ext`
 1. Run `ingest/bin/ingest.sh` (or `ingest_parallel.sh` if running parallel version) with one
    argument (the name of the directory in HDFS where the wikipedia XML files reside) and this will
    kick off a MapReduce job to ingest the data into Accumulo.
