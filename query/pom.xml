@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.apache.accumulo</groupId>
     <artifactId>accumulo-wikisearch</artifactId>
-    <version>1.5.0</version>
+    <version>1.8.0</version>
   </parent>
   <artifactId>wikisearch-query</artifactId>
   <packaging>ejb</packaging>
@@ -49,6 +49,11 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.6</version>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
@@ -83,21 +88,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-      <version>1.6</version>
-      <exclusions>
-          <exclusion>
-              <groupId>commons-logging</groupId>
-              <artifactId>commons-logging</artifactId>
-          </exclusion>
-      </exclusions>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.1</version>
+      <version>2.4</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -142,7 +135,7 @@
               <outputDirectory>lib</outputDirectory>
               <!-- just grab the non-provided runtime dependencies -->
               <!-- XXX we include guava at the same version as hadoop 2 provides so that we have it on hadoop 1 -->
-              <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-core,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace</includeArtifactIds>
+              <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-client,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace</includeArtifactIds>
               <excludeTransitive>true</excludeTransitive>
             </configuration>
           </execution>
@@ -178,76 +171,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <!-- profile for building against Hadoop 1.0.x
-    Activate by not specifying hadoop.profile -->
-    <profile>
-      <id>hadoop-1.0</id>
-      <activation>
-        <property>
-          <name>!hadoop.profile</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-core</artifactId>
-          <version>${version.hadoop}</version>
-          <exclusions>
-            <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-      </dependencies>
-    </profile>
-    <!-- profile for building against Hadoop 2.0.x
-    Activate using: mvn -Dhadoop.profile=2.0 -->
-    <profile>
-      <id>hadoop-2.0</id>
-      <activation>
-        <property>
-          <name>hadoop.profile</name>
-          <value>2.0</value>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-client</artifactId>
-          <version>${version.hadoop}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.codehaus.jackson</groupId>
-              <artifactId>jackson-mapper-asl</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-      </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-dependencies</id>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <phase>prepare-package</phase>
-                <configuration>
-                  <outputDirectory>lib</outputDirectory>
-                  <!-- just grab the non-provided runtime dependencies -->
-                  <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-client,hadoop-common,hadoop-hdfs,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace</includeArtifactIds>
-                  <excludeTransitive>false</excludeTransitive>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

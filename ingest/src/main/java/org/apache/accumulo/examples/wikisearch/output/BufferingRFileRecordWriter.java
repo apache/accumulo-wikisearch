@@ -22,13 +22,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.BatchWriterConfig;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.data.ColumnUpdate;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.file.FileSKVWriter;
-import org.apache.accumulo.core.file.rfile.RFileOperations;
+import org.apache.accumulo.examples.wikisearch.ingest.WikipediaConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.Text;
@@ -37,12 +42,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 final class BufferingRFileRecordWriter extends RecordWriter<Text,Mutation> {
   private final long maxSize;
-  private final AccumuloConfiguration acuconf;
   private final Configuration conf;
-  private final String filenamePrefix;
-  private final String taskID;
-  private final FileSystem fs;
-  private int fileCount = 0;
   private long size;
   
   private Map<Text,TreeMap<Key,Value>> buffers = new HashMap<Text,TreeMap<Key,Value>>();
@@ -79,31 +79,32 @@ final class BufferingRFileRecordWriter extends RecordWriter<Text,Mutation> {
     if (buffer.size() == 0)
       return;
     
-    String file = filenamePrefix + "/" + tablename + "/" + taskID + "_" + (fileCount++) + ".rf";
+    Connector conn;
+	try {		
+	  conn = WikipediaConfiguration.getConnector(conf);
+      BatchWriterConfig bwconfig = new BatchWriterConfig();
+      BatchWriter writer = conn.createBatchWriter(tablename.toString(), bwconfig);
+      for (Entry<Key,Value> e : buffer.entrySet()) {
+        Key k = e.getKey();
+    	Mutation m = new Mutation();
+    	m.put(k.getColumnFamily(), k.getColumnQualifier(), e.getValue());
+        writer.addMutation(m);
+      }
+      writer.close();
+	} catch (AccumuloException | AccumuloSecurityException | TableNotFoundException e1) {
+	  // TODO Auto-generated catch block
+	  e1.printStackTrace();
+	}    
     // TODO get the table configuration for the given table?
-    FileSKVWriter writer = RFileOperations.getInstance().openWriter(file, fs, conf, acuconf);
-    
-    // forget locality groups for now, just write everything to the default
-    writer.startDefaultLocalityGroup();
-    
-    for (Entry<Key,Value> e : buffer.entrySet()) {
-      writer.append(e.getKey(), e.getValue());
-    }
-    
-    writer.close();
     
     size -= bufferSize;
     buffer.clear();
     bufferSizes.put(tablename, 0l);
   }
   
-  BufferingRFileRecordWriter(long maxSize, AccumuloConfiguration acuconf, Configuration conf, String filenamePrefix, String taskID, FileSystem fs) {
+  BufferingRFileRecordWriter(long maxSize, Configuration conf) {
     this.maxSize = maxSize;
-    this.acuconf = acuconf;
     this.conf = conf;
-    this.filenamePrefix = filenamePrefix;
-    this.taskID = taskID;
-    this.fs = fs;
   }
   
   @Override
