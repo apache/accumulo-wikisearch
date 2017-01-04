@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -18,30 +18,24 @@ package org.apache.accumulo.examples.wikisearch.iterator;
 
 import java.io.IOException;
 
-import org.apache.accumulo.core.client.sample.SamplerConfiguration;
+import org.apache.accumulo.core.client.impl.BaseIteratorEnvironment;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.iterators.IteratorEnvironment;
-import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MapFileIterator;
-import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
-/**
- * 
- */
-public class DefaultIteratorEnvironment implements IteratorEnvironment {
-  
+public class DefaultIteratorEnvironment extends BaseIteratorEnvironment {
+
   AccumuloConfiguration conf;
-  
+
   public DefaultIteratorEnvironment(AccumuloConfiguration conf) {
     this.conf = conf;
   }
-  
+
   public DefaultIteratorEnvironment() {
     this.conf = AccumuloConfiguration.getDefaultConfiguration();
   }
@@ -52,45 +46,14 @@ public class DefaultIteratorEnvironment implements IteratorEnvironment {
     FileSystem fs = FileSystem.get(conf);
     return new MapFileIterator(this.conf, fs, mapFileName, conf);
   }
-  
+
   @Override
   public AccumuloConfiguration getConfig() {
     return conf;
   }
-  
+
   @Override
-  public IteratorScope getIteratorScope() {
-    throw new UnsupportedOperationException();
+  public boolean isSamplingEnabled() {
+    return false;
   }
-  
-  @Override
-  public boolean isFullMajorCompaction() {
-    throw new UnsupportedOperationException();
-  }
-  
-  @Override
-  public void registerSideChannel(SortedKeyValueIterator<Key,Value> iter) {
-    throw new UnsupportedOperationException();
-  }
-
-@Override
-public Authorizations getAuthorizations() {
-	throw new UnsupportedOperationException();
-}
-
-@Override
-public IteratorEnvironment cloneWithSamplingEnabled() {
-	throw new UnsupportedOperationException();
-}
-
-@Override
-public boolean isSamplingEnabled() {
-	throw new UnsupportedOperationException();
-}
-
-@Override
-public SamplerConfiguration getSamplerConfiguration() {
-	throw new UnsupportedOperationException();
-}
-  
 }

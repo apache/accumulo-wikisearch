@@ -45,6 +45,7 @@
     <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
     <version.guava>11.0.2</version.guava>
     <version.hadoop>2.6.4</version.hadoop>
+    <version.htrace>3.1.0-incubating</version.htrace>
     <version.jaxrs>2.1.0.GA</version.jaxrs>
     <version.junit>4.11</version.junit>
     <version.kryo>1.04</version.kryo>
@@ -67,7 +68,7 @@
    </dependency>
      <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
+      <artifactId>hadoop-common</artifactId>
       <version>${version.hadoop}</version>
     </dependency>
     <dependency>

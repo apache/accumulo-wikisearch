@@ -74,7 +74,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
+      <artifactId>hadoop-common</artifactId>
+         <exclusions>
+            <exclusion>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-json</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>javaee</groupId>
@@ -104,9 +114,21 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.htrace</groupId>
+      <artifactId>htrace-core</artifactId>
+      <version>${version.htrace}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <scope>runtime</scope>
+         <exclusions>
+            <exclusion>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.zookeeper</groupId>
@@ -134,8 +156,7 @@
             <configuration>
               <outputDirectory>lib</outputDirectory>
               <!-- just grab the non-provided runtime dependencies -->
-              <!-- XXX we include guava at the same version as hadoop 2 provides so that we have it on hadoop 1 -->
-              <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-client,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace</includeArtifactIds>
+              <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-common,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace,htrace-core</includeArtifactIds>
               <excludeTransitive>true</excludeTransitive>
             </configuration>
           </execution>
@@ -144,7 +165,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4.</version>
+        <version>2.4</version>
         <configuration>
           <descriptors>
             <descriptor>src/assembly/dist.xml</descriptor>

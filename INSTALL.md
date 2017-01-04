@@ -49,9 +49,12 @@ Instructions for installing and running the Accumulo Wikisearch example.
  
 ### Prerequisites
 
-1. The query software was tested using JBoss AS 6. Install this unless you feel like messing with the installation.
-  - NOTE: Ran into a [bug] that did not allow an EJB3.1 war file. The workaround is to separate the RESTEasy servlet
-    from the EJBs by creating an EJB jar and a WAR file.
+1. The query software was tested using JBoss AS 6. Install the JBoss distro and follow the instructions below
+   to build the EJB jar and WAR file required.
+  * To stop the JBoss warnings about WSDescriptorDeployer and JMSDescriptorDeployer, these deployers can be
+    removed from `$JBOSS_HOME/server/default/deployers/jbossws.deployer/META-INF/stack-agnostic-jboss-beans.xml`
+1. Ensure that you have successfully run `mvn clean install` at the Wikisearch top level to install the jars
+   into your local maven repo before building the query package.
 	
 ### Instructions
 
@@ -85,7 +88,7 @@ Instructions for installing and running the Accumulo Wikisearch example.
 
 1. At this point you should be able to open a browser and view the page:
 
-        http://localhost:8080/accumulo-wikisearch/ui/ui.jsp
+        http://localhost:8080/accumulo-wikisearch/ui.html
 
   You can issue the queries using this user interface or via the following REST urls:
 
@@ -98,6 +101,9 @@ Instructions for installing and running the Accumulo Wikisearch example.
 	into the search box at ui.jsp, and the auths parameter is a comma-separated list of wikis that you want to search (i.e.
 	enwiki,frwiki,dewiki, etc. Or you can use all) 
 	
+  - NOTE: Ran into a [bug] that did not allow an EJB3.1 war file. The workaround is to separate the RESTEasy servlet
+    from the EJBs by creating an EJB jar and a WAR file.
+
 [ejb-jar.xml.example]: query/src/main/resources/META-INF/ejb-jar.xml.example
 [dump-files]: http://dumps.wikimedia.org/backup-index.html
 [wikipedia.xml.example]: ingest/conf/wikipedia.xml.example

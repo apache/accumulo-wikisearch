@@ -44,14 +44,4 @@
     <param-value>/rest</param-value>
   </context-param>
 
-  <servlet>
-    <servlet-name>UserInterface</servlet-name>
-    <jsp-file>/ui.jsp</jsp-file>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>UserInterface</servlet-name>
-    <url-pattern>/ui/*</url-pattern>
-  </servlet-mapping>
-
 </web-app>
