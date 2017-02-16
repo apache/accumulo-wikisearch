@@ -74,17 +74,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-         <exclusions>
-            <exclusion>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-json</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-            </exclusion>
-        </exclusions>
+      <artifactId>hadoop-client</artifactId>
     </dependency>
     <dependency>
       <groupId>javaee</groupId>
@@ -156,7 +146,7 @@
             <configuration>
               <outputDirectory>lib</outputDirectory>
               <!-- just grab the non-provided runtime dependencies -->
-              <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-common,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace,htrace-core</includeArtifactIds>
+              <includeArtifactIds>commons-io,commons-configuration,commons-lang,commons-codec,protobuf-java,libthrift,zookeeper,hadoop-client,commons-jexl,guava,kryo,asm,minlog,reflectasm,wikisearch-ingest,accumulo-core,accumulo-fate,accumulo-trace,htrace-core</includeArtifactIds>
               <excludeTransitive>true</excludeTransitive>
             </configuration>
           </execution>

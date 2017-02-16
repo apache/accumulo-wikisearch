@@ -68,7 +68,7 @@
    </dependency>
      <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
+      <artifactId>hadoop-client</artifactId>
       <version>${version.hadoop}</version>
     </dependency>
     <dependency>
