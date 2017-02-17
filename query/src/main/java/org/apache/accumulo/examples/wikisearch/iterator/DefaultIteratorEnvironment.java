@@ -16,25 +16,24 @@
  */
 package org.apache.accumulo.examples.wikisearch.iterator;
 
-import java.io.IOException;
-
-import org.apache.accumulo.core.client.impl.BaseIteratorEnvironment;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
+import org.apache.accumulo.core.client.sample.SamplerConfiguration;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MapFileIterator;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 
-public class DefaultIteratorEnvironment extends BaseIteratorEnvironment {
+import java.io.IOException;
+
+public class DefaultIteratorEnvironment implements IteratorEnvironment {
 
   AccumuloConfiguration conf;
-
-  public DefaultIteratorEnvironment(AccumuloConfiguration conf) {
-    this.conf = conf;
-  }
 
   public DefaultIteratorEnvironment() {
     this.conf = AccumuloConfiguration.getDefaultConfiguration();
@@ -55,5 +54,35 @@ public class DefaultIteratorEnvironment extends BaseIteratorEnvironment {
   @Override
   public boolean isSamplingEnabled() {
     return false;
+  }
+
+  @Override
+  public IteratorScope getIteratorScope() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isFullMajorCompaction() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void registerSideChannel(SortedKeyValueIterator<Key,Value> iter) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Authorizations getAuthorizations() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public SamplerConfiguration getSamplerConfiguration() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public IteratorEnvironment cloneWithSamplingEnabled() {
+    throw new UnsupportedOperationException();
   }
 }
