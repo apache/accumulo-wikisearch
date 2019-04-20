@@ -680,7 +680,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             continue;
           }
           String fValue = t.getValue().toString();
-          fValue = fValue.replaceAll("'", "");
+          fValue = fValue.replace("'", "");
           boolean negated = t.getOperator().equals("!=");
           
           if (!fName.startsWith(FIELD_NAME_PREFIX)) {
