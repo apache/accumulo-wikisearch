@@ -65,11 +65,12 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.Multimap;
 
 public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, OptionDescriber {
-  
-  private static final Collection<ByteSequence> EMPTY_COL_FAMS = new ArrayList<ByteSequence>();
+
+  private static final Collection<ByteSequence> EMPTY_COL_FAMS = new ArrayList<>();
   protected static final Logger log = Logger.getLogger(BooleanLogicIterator.class);
   public static final String QUERY_OPTION = "expr";
-  public static final String TERM_CARDINALITIES = "TERM_CARDINALITIES"; // comma separated list of term : count
+  public static final String TERM_CARDINALITIES = "TERM_CARDINALITIES"; // comma separated list of
+                                                                        // term : count
   public static final String FIELD_INDEX_QUERY = "FIELD_INDEX_QUERY";
   public static final String FIELD_NAME_PREFIX = "fi\0";
   // --------------------------------------------------------------------------
@@ -80,55 +81,58 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
   private SortedKeyValueIterator<Key,Value> sourceIterator;
   private BooleanLogicTreeNode root;
   private PriorityQueue<BooleanLogicTreeNode> positives;
-  private ArrayList<BooleanLogicTreeNode> negatives = new ArrayList<BooleanLogicTreeNode>();
+  private ArrayList<BooleanLogicTreeNode> negatives = new ArrayList<>();
   private ArrayList<BooleanLogicTreeNode> rangerators;
   private String updatedQuery;
-  private Map<String,Long> termCardinalities = new HashMap<String,Long>();
+  private Map<String,Long> termCardinalities = new HashMap<>();
   private Range overallRange = null;
   private FieldIndexKeyParser keyParser;
-  
+
   public BooleanLogicIterator() {
     keyParser = new FieldIndexKeyParser();
-    rangerators = new ArrayList<BooleanLogicTreeNode>();
+    rangerators = new ArrayList<>();
   }
-  
+
   public BooleanLogicIterator(BooleanLogicIterator other, IteratorEnvironment env) {
     if (other.sourceIterator != null) {
       this.sourceIterator = other.sourceIterator.deepCopy(env);
     }
     keyParser = new FieldIndexKeyParser();
-    rangerators = new ArrayList<BooleanLogicTreeNode>();
+    rangerators = new ArrayList<>();
     log.debug("Congratulations, you've reached the BooleanLogicIterator");
   }
-  
+
   public static void setLogLevel(Level lev) {
     log.setLevel(lev);
   }
-  
+
   public void setDebug(Level lev) {
     log.setLevel(lev);
   }
-  
+
+  @Override
   public SortedKeyValueIterator<Key,Value> deepCopy(IteratorEnvironment env) {
     return new BooleanLogicIterator(this, env);
   }
-  
+
   /**
-   * <b>init</b> is responsible for setting up the iterator. It will pull the serialized boolean parse tree from the options mapping and construct the
-   * appropriate sub-iterators
-   * 
-   * Once initialized, this iterator will automatically seek to the first matching instance. If no top key exists, that means an event matching the boolean
-   * logic did not exist in the partition. Subsequent calls to next will move the iterator and all sub-iterators to the next match.
-   * 
+   * <b>init</b> is responsible for setting up the iterator. It will pull the serialized boolean
+   * parse tree from the options mapping and construct the appropriate sub-iterators
+   *
+   * Once initialized, this iterator will automatically seek to the first matching instance. If no
+   * top key exists, that means an event matching the boolean logic did not exist in the partition.
+   * Subsequent calls to next will move the iterator and all sub-iterators to the next match.
+   *
    * @param source
    *          The underlying SortedkeyValueIterator.
    * @param options
    *          A Map<String, String> of options.
    * @param env
    *          The iterator environment
-   * @throws IOException
    */
-  public void init(SortedKeyValueIterator<Key,Value> source, Map<String,String> options, IteratorEnvironment env) throws IOException {
+  @Override
+  public void init(SortedKeyValueIterator<Key,Value> source, Map<String,String> options,
+      IteratorEnvironment env) throws IOException {
     validateOptions(options);
     try {
       if (log.isDebugEnabled()) {
@@ -136,7 +140,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
       // Copy the source iterator
       sourceIterator = source.deepCopy(env);
-      
+
       // Potentially take advantage of term cardinalities
       String[] terms = null;
       if (null != options.get(TERM_CARDINALITIES)) {
@@ -148,14 +152,14 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           }
         }
       }
-      
+
       // Step 1: Parse the query
       if (log.isDebugEnabled()) {
         log.debug("QueryParser");
       }
       QueryParser qp = new QueryParser();
       qp.execute(this.updatedQuery); // validateOptions updates the updatedQuery
-      
+
       // need to build the query tree based on jexl parsing.
       // Step 2: refactor QueryTree - inplace modification
       if (log.isDebugEnabled()) {
@@ -163,17 +167,17 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
       TreeNode tree = qp.getIteratorTree();
       this.root = transformTreeNode(tree);
-      
+
       if (log.isDebugEnabled()) {
         log.debug("refactorTree");
       }
       this.root = refactorTree(this.root);
-      
+
       if (log.isDebugEnabled()) {
         log.debug("collapseBranches");
       }
       collapseBranches(root);
-      
+
       // Step 3: create iterators where we need them.
       createIteratorTree(this.root);
       if (log.isDebugEnabled()) {
@@ -181,18 +185,19 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
       // Step 4: split the positive and negative leaves
       splitLeaves(this.root);
-      
+
     } catch (ParseException ex) {
       log.error("ParseException in init: " + ex);
       throw new IllegalArgumentException("Failed to parse query", ex);
     } catch (Exception ex) {
       throw new IllegalArgumentException("probably had no indexed terms", ex);
     }
-    
+
   }
-  
-  /* *************************************************************************
-   * Methods for sub iterator creation.
+
+  /*
+   * ************************************************************************* Methods for sub
+   * iterator creation.
    */
   private void createIteratorTree(BooleanLogicTreeNode root) throws IOException {
     if (log.isDebugEnabled()) {
@@ -201,7 +206,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     // Walk the tree, if all of your children are leaves, roll you into the
     // appropriate iterator.
     Enumeration<?> dfe = root.depthFirstEnumeration();
-    
+
     while (dfe.hasMoreElements()) {
       BooleanLogicTreeNode node = (BooleanLogicTreeNode) dfe.nextElement();
       if (!node.isLeaf() && node.getType() != ParserTreeConstants.JJTJEXLSCRIPT) {
@@ -217,29 +222,32 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             node.setUserObject(createOrIterator(node));
           } else {
             // throw an error.
-            log.debug("createIteratorTree, encounterd a node type I do not know about: " + node.getType());
+            log.debug("createIteratorTree, encounterd a node type I do not know about: "
+                + node.getType());
             log.debug("createIteratorTree, node contents:  " + node.getContents());
           }
           node.removeAllChildren();
         }
       }
     }
-    
+
     // now for remaining leaves, create basic iterators.
     // you can add in specialized iterator mappings here if necessary.
     dfe = root.depthFirstEnumeration();
     while (dfe.hasMoreElements()) {
       BooleanLogicTreeNode node = (BooleanLogicTreeNode) dfe.nextElement();
-      if (node.isLeaf() && node.getType() != ParserTreeConstants.JJTANDNODE && node.getType() != ParserTreeConstants.JJTORNODE) {
+      if (node.isLeaf() && node.getType() != ParserTreeConstants.JJTANDNODE
+          && node.getType() != ParserTreeConstants.JJTORNODE) {
         node.setUserObject(createFieldIndexIterator(node));
       }
     }
   }
-  
+
   private AndIterator createIntersectingIterator(BooleanLogicTreeNode node) throws IOException {
     if (log.isDebugEnabled()) {
       log.debug("createIntersectingIterator(node)");
-      log.debug("fName: " + node.getFieldName() + " , fValue: " + node.getFieldValue() + " , operator: " + node.getFieldOperator());
+      log.debug("fName: " + node.getFieldName() + " , fValue: " + node.getFieldValue()
+          + " , operator: " + node.getFieldOperator());
     }
     Text[] columnFamilies = new Text[node.getChildCount()];
     Text[] termValues = new Text[node.getChildCount()];
@@ -253,72 +261,77 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       negationMask[i] = child.isNegated();
       i++;
     }
-    
+
     AndIterator ii = new AndIterator();
-    Map<String,String> options = new HashMap<String,String>();
+    Map<String,String> options = new HashMap<>();
     options.put(AndIterator.columnFamiliesOptionName, AndIterator.encodeColumns(columnFamilies));
     options.put(AndIterator.termValuesOptionName, AndIterator.encodeTermValues(termValues));
     options.put(AndIterator.notFlagsOptionName, AndIterator.encodeBooleans(negationMask));
-    
+
     ii.init(sourceIterator.deepCopy(env), options, env);
     return ii;
   }
-  
+
   private OrIterator createOrIterator(BooleanLogicTreeNode node) throws IOException {
     if (log.isDebugEnabled()) {
       log.debug("createOrIterator(node)");
-      log.debug("fName: " + node.getFieldName() + " , fValue: " + node.getFieldValue() + " , operator: " + node.getFieldOperator());
+      log.debug("fName: " + node.getFieldName() + " , fValue: " + node.getFieldValue()
+          + " , operator: " + node.getFieldOperator());
     }
-    
+
     Enumeration<?> children = node.children();
-    ArrayList<Text> fams = new ArrayList<Text>();
-    ArrayList<Text> quals = new ArrayList<Text>();
+    ArrayList<Text> fams = new ArrayList<>();
+    ArrayList<Text> quals = new ArrayList<>();
     while (children.hasMoreElements()) {
       BooleanLogicTreeNode child = (BooleanLogicTreeNode) children.nextElement();
       fams.add(child.getFieldName());
       quals.add(child.getFieldValue());
     }
-    
+
     OrIterator iter = new OrIterator();
     SortedKeyValueIterator<Key,Value> source = sourceIterator.deepCopy(env);
     for (int i = 0; i < fams.size(); i++) {
       iter.addTerm(source, fams.get(i), quals.get(i), env);
     }
-    
+
     return iter;
   }
-  
+
   /*
-   * This takes the place of the SortedKeyIterator used previously. This iterator is bound to the partitioned table structure. When next is called it will jump
-   * rows as necessary internally versus needing to do it externally as was the case with the SortedKeyIterator.
+   * This takes the place of the SortedKeyIterator used previously. This iterator is bound to the
+   * partitioned table structure. When next is called it will jump rows as necessary internally
+   * versus needing to do it externally as was the case with the SortedKeyIterator.
    */
-  private FieldIndexIterator createFieldIndexIterator(BooleanLogicTreeNode node) throws IOException {
+  private FieldIndexIterator createFieldIndexIterator(BooleanLogicTreeNode node)
+      throws IOException {
     if (log.isDebugEnabled()) {
       log.debug("BoolLogic.createFieldIndexIterator()");
-      log.debug("fName: " + node.getFieldName() + " , fValue: " + node.getFieldValue() + " , operator: " + node.getFieldOperator());
+      log.debug("fName: " + node.getFieldName() + " , fValue: " + node.getFieldValue()
+          + " , operator: " + node.getFieldOperator());
     }
     Text rowId = null;
     sourceIterator.seek(new Range(), EMPTY_COL_FAMS, false);
     if (sourceIterator.hasTop()) {
       rowId = sourceIterator.getTopKey().getRow();
     }
-    
-    FieldIndexIterator iter = new FieldIndexIterator(node.getType(), rowId, node.getFieldName(), node.getFieldValue(), node.isNegated(),
-        node.getFieldOperator());
-    
-    Map<String,String> options = new HashMap<String,String>();
+
+    FieldIndexIterator iter = new FieldIndexIterator(node.getType(), rowId, node.getFieldName(),
+        node.getFieldValue(), node.isNegated(), node.getFieldOperator());
+
+    Map<String,String> options = new HashMap<>();
     iter.init(sourceIterator.deepCopy(env), options, env);
     if (log.isDebugEnabled()) {
       FieldIndexIterator.setLogLevel(Level.DEBUG);
     } else {
       FieldIndexIterator.setLogLevel(Level.OFF);
     }
-    
+
     return iter;
   }
-  
-  /* *************************************************************************
-   * Methods for testing the tree WRT boolean logic.
+
+  /*
+   * ************************************************************************* Methods for testing
+   * the tree WRT boolean logic.
    */
   // After all iterator pointers have been advanced, test if the current
   // record passes the boolean logic.
@@ -330,13 +343,14 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     while (dfe.hasMoreElements()) {
       BooleanLogicTreeNode node = (BooleanLogicTreeNode) dfe.nextElement();
       if (!node.isLeaf()) {
-        
+
         int type = node.getType();
         if (type == ParserTreeConstants.JJTANDNODE) { // BooleanLogicTreeNode.NodeType.AND) {
           handleAND(node);
         } else if (type == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR) {
           handleOR(node);
-        } else if (type == ParserTreeConstants.JJTJEXLSCRIPT) {// BooleanLogicTreeNode.NodeType.HEAD) {
+        } else if (type == ParserTreeConstants.JJTJEXLSCRIPT) {// BooleanLogicTreeNode.NodeType.HEAD)
+                                                               // {
           handleHEAD(node);
         } else if (type == ParserTreeConstants.JJTNOTNODE) { // BooleanLogicTreeNode.NodeType.NOT) {
           // there should not be any "NOT"s.
@@ -344,14 +358,18 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
       } else {
         // it is a leaf, if it is an AND or OR do something
-        if (node.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR) { //OrIterator
+        if (node.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR) {
+                                                              // //OrIterator
           node.setValid(node.hasTop());
           node.reSet();
           node.addToSet(node.getTopKey());
-          
-        } else if (node.getType() == ParserTreeConstants.JJTANDNODE || node.getType() == ParserTreeConstants.JJTEQNODE
-            || node.getType() == ParserTreeConstants.JJTERNODE || node.getType() == ParserTreeConstants.JJTLENODE
-            || node.getType() == ParserTreeConstants.JJTLTNODE || node.getType() == ParserTreeConstants.JJTGENODE
+
+        } else if (node.getType() == ParserTreeConstants.JJTANDNODE
+            || node.getType() == ParserTreeConstants.JJTEQNODE
+            || node.getType() == ParserTreeConstants.JJTERNODE
+            || node.getType() == ParserTreeConstants.JJTLENODE
+            || node.getType() == ParserTreeConstants.JJTLTNODE
+            || node.getType() == ParserTreeConstants.JJTGENODE
             || node.getType() == ParserTreeConstants.JJTGTNODE) {
           // sub iterator guarantees it is in its internal range,
           // otherwise, no top.
@@ -359,58 +377,69 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
       }
     }
-    
+
     if (log.isDebugEnabled()) {
-      log.debug("BoolLogic.testTreeState end, treeState:: " + this.root.getContents() + "  , valid: " + root.isValid());
+      log.debug("BoolLogic.testTreeState end, treeState:: " + this.root.getContents()
+          + "  , valid: " + root.isValid());
     }
     return this.root.isValid();
   }
-  
+
   private void handleHEAD(BooleanLogicTreeNode node) {
     Enumeration<?> children = node.children();
     while (children.hasMoreElements()) {
       BooleanLogicTreeNode child = (BooleanLogicTreeNode) children.nextElement();
-      
-      if (child.getType() == ParserTreeConstants.JJTANDNODE) {// BooleanLogicTreeNode.NodeType.AND) {
+
+      if (child.getType() == ParserTreeConstants.JJTANDNODE) {// BooleanLogicTreeNode.NodeType.AND)
+                                                              // {
         node.setValid(child.isValid());
         node.setTopKey(child.getTopKey());
-      } else if (child.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR) {
+      } else if (child.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR)
+                                                                    // {
         node.setValid(child.isValid());
         node.setTopKey(child.getTopKey());
-      } else if (child.getType() == ParserTreeConstants.JJTEQNODE || child.getType() == ParserTreeConstants.JJTERNODE
-          || child.getType() == ParserTreeConstants.JJTGTNODE || child.getType() == ParserTreeConstants.JJTGENODE
-          || child.getType() == ParserTreeConstants.JJTLTNODE || child.getType() == ParserTreeConstants.JJTLENODE) {// BooleanLogicTreeNode.NodeType.SEL) {
+      } else if (child.getType() == ParserTreeConstants.JJTEQNODE
+          || child.getType() == ParserTreeConstants.JJTERNODE
+          || child.getType() == ParserTreeConstants.JJTGTNODE
+          || child.getType() == ParserTreeConstants.JJTGENODE
+          || child.getType() == ParserTreeConstants.JJTLTNODE
+          || child.getType() == ParserTreeConstants.JJTLENODE) {// BooleanLogicTreeNode.NodeType.SEL)
+                                                                // {
         node.setValid(true);
         node.setTopKey(child.getTopKey());
         if (child.getTopKey() == null) {
           node.setValid(false);
         }
       }
-    }// end while
-    
+    } // end while
+
     // I have to be valid AND have a top key
     if (node.isValid() && !node.hasTop()) {
       node.setValid(false);
     }
   }
-  
+
   private void handleAND(BooleanLogicTreeNode me) {
     if (log.isDebugEnabled()) {
       log.debug("handleAND::" + me.getContents());
     }
     Enumeration<?> children = me.children();
     me.setValid(true); // it's easier to prove false than true
-    
-    HashSet<Key> goodSet = new HashSet<Key>();
-    HashSet<Key> badSet = new HashSet<Key>();
+
+    HashSet<Key> goodSet = new HashSet<>();
+    HashSet<Key> badSet = new HashSet<>();
     while (children.hasMoreElements()) {
       BooleanLogicTreeNode child = (BooleanLogicTreeNode) children.nextElement();
-      
-      if (child.getType() == ParserTreeConstants.JJTEQNODE || child.getType() == ParserTreeConstants.JJTANDNODE
-          || child.getType() == ParserTreeConstants.JJTERNODE || child.getType() == ParserTreeConstants.JJTNENODE
-          || child.getType() == ParserTreeConstants.JJTGENODE || child.getType() == ParserTreeConstants.JJTLENODE
-          || child.getType() == ParserTreeConstants.JJTGTNODE || child.getType() == ParserTreeConstants.JJTLTNODE) {
-        
+
+      if (child.getType() == ParserTreeConstants.JJTEQNODE
+          || child.getType() == ParserTreeConstants.JJTANDNODE
+          || child.getType() == ParserTreeConstants.JJTERNODE
+          || child.getType() == ParserTreeConstants.JJTNENODE
+          || child.getType() == ParserTreeConstants.JJTGENODE
+          || child.getType() == ParserTreeConstants.JJTLENODE
+          || child.getType() == ParserTreeConstants.JJTGTNODE
+          || child.getType() == ParserTreeConstants.JJTLTNODE) {
+
         if (child.isNegated()) {
           if (child.hasTop()) {
             badSet.add(child.getTopKey());
@@ -436,7 +465,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               me.setValid(false);
               return;
             }
-            
+
             // if good set is empty, add it.
             if (goodSet.isEmpty()) {
               if (log.isDebugEnabled()) {
@@ -448,17 +477,20 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               // if either fails, I'm false.
               if (!goodSet.contains(child.getTopKey())) {
                 if (log.isDebugEnabled()) {
-                  log.debug("handleAND, goodSet is not empty, and does NOT contain child, setting false.  child: " + child.getContents());
+                  log.debug(
+                      "handleAND, goodSet is not empty, and does NOT contain child, setting false.  child: "
+                          + child.getContents());
                 }
                 me.setValid(false);
                 return;
               } else {
                 // trim the good set to this one value
                 // (handles the case were the initial encounters were ORs)
-                goodSet = new HashSet<Key>();
+                goodSet = new HashSet<>();
                 goodSet.add(child.getTopKey());
                 if (log.isDebugEnabled()) {
-                  log.debug("handleAND, child in goodset, trim to this value: " + child.getContents());
+                  log.debug(
+                      "handleAND, child in goodset, trim to this value: " + child.getContents());
                 }
               }
             }
@@ -488,9 +520,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
           }
         }
-        
-      } else if (child.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR) {
-      
+
+      } else if (child.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR)
+                                                                    // {
+
         // NOTE: The OR may be an OrIterator in which case it will only produce
         // a single unique identifier, or it may be a pure logical construct and
         // be capable of producing multiple unique identifiers.
@@ -501,7 +534,8 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         boolean pureNegations = true;
         if (!child.isValid()) {
           if (log.isDebugEnabled()) {
-            log.debug("handleAND, child is an OR and it is not valid, setting false, ALL NEGATED?: " + child.isChildrenAllNegated());
+            log.debug("handleAND, child is an OR and it is not valid, setting false, ALL NEGATED?: "
+                + child.isChildrenAllNegated());
           }
           me.setValid(false); // I'm an AND if one of my children is false, I'm false.
           return;
@@ -537,7 +571,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
           }
         }
-        
+
         // is the goodSet still empty? that means were were only negations
         // otherwise, if it's not empty and we didn't match one, false
         if (child.isNegated()) {
@@ -558,16 +592,16 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               me.setValid(false);
               return;
             }
-            
+
             // we matched something, trim the set.
             // i.e. two child ORs
             goodSet = child.getIntersection(goodSet);
           }
         }
-        
+
       }
-    }// end while
-    
+    } // end while
+
     if (goodSet.isEmpty()) { // && log.isDebugEnabled()) {
       if (log.isDebugEnabled()) {
         log.debug("handleAND-> goodSet is empty, pure negations?");
@@ -579,7 +613,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
     }
   }
-  
+
   private void handleOR(BooleanLogicTreeNode me) {
     Enumeration<?> children = me.children();
     // I'm an OR node, need at least one positive.
@@ -591,12 +625,16 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       // 3 cases for child: SEL, AND, OR
       // and negation
       BooleanLogicTreeNode child = (BooleanLogicTreeNode) children.nextElement();
-      if (child.getType() == ParserTreeConstants.JJTEQNODE || child.getType() == ParserTreeConstants.JJTNENODE
-          || child.getType() == ParserTreeConstants.JJTANDNODE || child.getType() == ParserTreeConstants.JJTERNODE
-          || child.getType() == ParserTreeConstants.JJTNRNODE || child.getType() == ParserTreeConstants.JJTLENODE
-          || child.getType() == ParserTreeConstants.JJTLTNODE || child.getType() == ParserTreeConstants.JJTGENODE
+      if (child.getType() == ParserTreeConstants.JJTEQNODE
+          || child.getType() == ParserTreeConstants.JJTNENODE
+          || child.getType() == ParserTreeConstants.JJTANDNODE
+          || child.getType() == ParserTreeConstants.JJTERNODE
+          || child.getType() == ParserTreeConstants.JJTNRNODE
+          || child.getType() == ParserTreeConstants.JJTLENODE
+          || child.getType() == ParserTreeConstants.JJTLTNODE
+          || child.getType() == ParserTreeConstants.JJTGENODE
           || child.getType() == ParserTreeConstants.JJTGTNODE) {
-        
+
         if (child.hasTop()) {
           if (child.isNegated()) {
             // do nothing.
@@ -612,8 +650,9 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           // that child could be pure negations in which case I'm true
           me.setValid(child.isValid());
         }
-        
-      } else if (child.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR) {
+
+      } else if (child.getType() == ParserTreeConstants.JJTORNODE) {// BooleanLogicTreeNode.NodeType.OR)
+                                                                    // {
         if (child.hasTop()) {
           if (!child.isNegated()) {
             allNegated = false;
@@ -634,8 +673,8 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           }
         }
       }
-    }// end while
-    
+    } // end while
+
     if (allNegated) {
       // do all my children have top?
       children = me.children();
@@ -648,7 +687,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
       }
       me.setValid(false);
-      
+
     } else {
       Key k = me.getMinUniqueID();
       if (k == null) {
@@ -659,9 +698,9 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
     }
   }
-  
-  /* *************************************************************************
-   * Utility methods.
+
+  /*
+   * ************************************************************************* Utility methods.
    */
   // Transforms the TreeNode tree of query.parser into the
   // BooleanLogicTreeNodeJexl form.
@@ -670,11 +709,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       if (log.isDebugEnabled()) {
         log.debug("Equals Node");
       }
-      
+
       Multimap<String,QueryTerm> terms = node.getTerms();
       for (String fName : terms.keySet()) {
         Collection<QueryTerm> values = terms.get(fName);
-        
+
         for (QueryTerm t : values) {
           if (null == t || null == t.getValue()) {
             continue;
@@ -682,21 +721,22 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           String fValue = t.getValue().toString();
           fValue = fValue.replace("'", "");
           boolean negated = t.getOperator().equals("!=");
-          
+
           if (!fName.startsWith(FIELD_NAME_PREFIX)) {
             fName = FIELD_NAME_PREFIX + fName;
           }
-          BooleanLogicTreeNode child = new BooleanLogicTreeNode(ParserTreeConstants.JJTEQNODE, fName, fValue, negated);
+          BooleanLogicTreeNode child =
+              new BooleanLogicTreeNode(ParserTreeConstants.JJTEQNODE, fName, fValue, negated);
           return child;
         }
       }
     }
-    
+
     if (node.getType().equals(ASTERNode.class) || node.getType().equals(ASTNRNode.class)) {
       if (log.isDebugEnabled()) {
         log.debug("Regex Node");
       }
-      
+
       Multimap<String,QueryTerm> terms = node.getTerms();
       for (String fName : terms.keySet()) {
         Collection<QueryTerm> values = terms.get(fName);
@@ -707,23 +747,24 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           String fValue = t.getValue().toString();
           fValue = fValue.replaceAll("'", "");
           boolean negated = node.getType().equals(ASTNRNode.class);
-          
+
           if (!fName.startsWith(FIELD_NAME_PREFIX)) {
             fName = FIELD_NAME_PREFIX + fName;
           }
-          
-          BooleanLogicTreeNode child = new BooleanLogicTreeNode(ParserTreeConstants.JJTERNODE, fName, fValue, negated);
+
+          BooleanLogicTreeNode child =
+              new BooleanLogicTreeNode(ParserTreeConstants.JJTERNODE, fName, fValue, negated);
           return child;
         }
       }
     }
-    
-    if (node.getType().equals(ASTLTNode.class) || node.getType().equals(ASTLENode.class) || node.getType().equals(ASTGTNode.class)
-        || node.getType().equals(ASTGENode.class)) {
+
+    if (node.getType().equals(ASTLTNode.class) || node.getType().equals(ASTLENode.class)
+        || node.getType().equals(ASTGTNode.class) || node.getType().equals(ASTGENode.class)) {
       Multimap<String,QueryTerm> terms = node.getTerms();
       for (String fName : terms.keySet()) {
         Collection<QueryTerm> values = terms.get(fName);
-        
+
         if (!fName.startsWith(FIELD_NAME_PREFIX)) {
           fName = FIELD_NAME_PREFIX + fName;
         }
@@ -733,9 +774,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           }
           String fValue = t.getValue().toString();
           fValue = fValue.replaceAll("'", "").toLowerCase();
-          boolean negated = false; // to be negated, must be child of Not, which is handled elsewhere.
+          boolean negated = false; // to be negated, must be child of Not, which is handled
+                                   // elsewhere.
           int mytype = JexlOperatorConstants.getJJTNodeType(t.getOperator());
-          
+
           BooleanLogicTreeNode child = new BooleanLogicTreeNode(mytype, fName, fValue, negated);
           if (log.isDebugEnabled()) {
             log.debug("adding child node: " + child.getContents());
@@ -744,11 +786,12 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
       }
     }
-    
+
     BooleanLogicTreeNode returnNode = null;
-    
+
     if (node.getType().equals(ASTAndNode.class) || node.getType().equals(ASTOrNode.class)) {
-      int parentType = node.getType().equals(ASTAndNode.class) ? ParserTreeConstants.JJTANDNODE : ParserTreeConstants.JJTORNODE;
+      int parentType = node.getType().equals(ASTAndNode.class) ? ParserTreeConstants.JJTANDNODE
+          : ParserTreeConstants.JJTORNODE;
       if (log.isDebugEnabled()) {
         log.debug("AND/OR node: " + parentType);
       }
@@ -777,7 +820,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
       } else {
         returnNode = new BooleanLogicTreeNode(parentType);
-        
+
       }
     } else if (node.getType().equals(ASTNotNode.class)) {
       if (log.isDebugEnabled()) {
@@ -788,7 +831,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         Multimap<String,QueryTerm> terms = node.getTerms();
         for (String fName : terms.keySet()) {
           Collection<QueryTerm> values = terms.get(fName);
-          
+
           if (!fName.startsWith(FIELD_NAME_PREFIX)) {
             fName = FIELD_NAME_PREFIX + fName;
           }
@@ -800,7 +843,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             fValue = fValue.replaceAll("'", "").toLowerCase();
             boolean negated = !t.getOperator().equals("!=");
             int mytype = JexlOperatorConstants.getJJTNodeType(t.getOperator());
-            
+
             if (!fName.startsWith(FIELD_NAME_PREFIX)) {
               fName = FIELD_NAME_PREFIX + fName;
             }
@@ -810,8 +853,9 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       } else {
         returnNode = new BooleanLogicTreeNode(ParserTreeConstants.JJTNOTNODE);
       }
-    } else if (node.getType().equals(ASTJexlScript.class) || node.getType().getSimpleName().equals("RootNode")) {
-      
+    } else if (node.getType().equals(ASTJexlScript.class)
+        || node.getType().getSimpleName().equals("RootNode")) {
+
       if (log.isDebugEnabled()) {
         log.debug("ROOT/JexlScript node");
       }
@@ -821,7 +865,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         Multimap<String,QueryTerm> terms = node.getTerms();
         for (String fName : terms.keySet()) {
           Collection<QueryTerm> values = terms.get(fName);
-          
+
           if (!fName.startsWith(FIELD_NAME_PREFIX)) {
             fName = FIELD_NAME_PREFIX + fName;
           }
@@ -833,7 +877,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             fValue = fValue.replaceAll("'", "").toLowerCase();
             boolean negated = t.getOperator().equals("!=");
             int mytype = JexlOperatorConstants.getJJTNodeType(t.getOperator());
-            
+
             BooleanLogicTreeNode child = new BooleanLogicTreeNode(mytype, fName, fValue, negated);
             returnNode.add(child);
             return returnNode;
@@ -843,38 +887,41 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         returnNode = new BooleanLogicTreeNode(ParserTreeConstants.JJTJEXLSCRIPT);
       }
     } else {
-      log.error("Currently Unsupported Node type: " + node.getClass().getName() + " \t" + node.getType());
+      log.error(
+          "Currently Unsupported Node type: " + node.getClass().getName() + " \t" + node.getType());
     }
     for (TreeNode child : node.getChildren()) {
       returnNode.add(transformTreeNode(child));
     }
-    
+
     return returnNode;
   }
-  
+
   // After tree conflicts have been resolve, we can collapse branches where
   // leaves have been pruned.
   public static void collapseBranches(BooleanLogicTreeNode myroot) throws Exception {
-    
+
     // NOTE: doing a depth first enumeration didn't wory when I started
     // removing nodes halfway through. The following method does work,
     // it's essentially a reverse breadth first traversal.
-    List<BooleanLogicTreeNode> nodes = new ArrayList<BooleanLogicTreeNode>();
+    List<BooleanLogicTreeNode> nodes = new ArrayList<>();
     Enumeration<?> bfe = myroot.breadthFirstEnumeration();
-    
+
     while (bfe.hasMoreElements()) {
       BooleanLogicTreeNode node = (BooleanLogicTreeNode) bfe.nextElement();
       nodes.add(node);
     }
-    
+
     // walk backwards
     for (int i = nodes.size() - 1; i >= 0; i--) {
       BooleanLogicTreeNode node = nodes.get(i);
       if (log.isDebugEnabled()) {
-        log.debug("collapseBranches, inspecting node: " + node.toString() + "  " + node.printNode());
+        log.debug(
+            "collapseBranches, inspecting node: " + node.toString() + "  " + node.printNode());
       }
-      
-      if (node.getType() == ParserTreeConstants.JJTANDNODE || node.getType() == ParserTreeConstants.JJTORNODE) {
+
+      if (node.getType() == ParserTreeConstants.JJTANDNODE
+          || node.getType() == ParserTreeConstants.JJTORNODE) {
         if (node.getChildCount() == 0 && !node.isRangeNode()) {
           node.removeFromParent();
         } else if (node.getChildCount() == 1) {
@@ -882,7 +929,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           BooleanLogicTreeNode c = (BooleanLogicTreeNode) node.getFirstChild();
           node.removeFromParent();
           p.add(c);
-          
+
         }
       } else if (node.getType() == ParserTreeConstants.JJTJEXLSCRIPT) {
         if (node.getChildCount() == 0) {
@@ -893,26 +940,27 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
       }
     }
-    
+
   }
-  
+
   public BooleanLogicTreeNode refactorTree(BooleanLogicTreeNode myroot) {
-    List<BooleanLogicTreeNode> nodes = new ArrayList<BooleanLogicTreeNode>();
+    List<BooleanLogicTreeNode> nodes = new ArrayList<>();
     Enumeration<?> bfe = myroot.breadthFirstEnumeration();
-    
+
     while (bfe.hasMoreElements()) {
       BooleanLogicTreeNode node = (BooleanLogicTreeNode) bfe.nextElement();
       nodes.add(node);
     }
-    
+
     // walk backwards
     for (int i = nodes.size() - 1; i >= 0; i--) {
       BooleanLogicTreeNode node = nodes.get(i);
-      if (node.getType() == ParserTreeConstants.JJTANDNODE || node.getType() == ParserTreeConstants.JJTORNODE) {
+      if (node.getType() == ParserTreeConstants.JJTANDNODE
+          || node.getType() == ParserTreeConstants.JJTORNODE) {
         // 1. check to see if all children are negated
         // 2. check to see if we have to handle ranges.
-        
-        Map<Text,RangeBounds> ranges = new HashMap<Text,RangeBounds>();
+
+        Map<Text,RangeBounds> ranges = new HashMap<>();
         Enumeration<?> children = node.children();
         boolean allNegated = true;
         while (children.hasMoreElements()) {
@@ -921,7 +969,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             allNegated = false;
             // break;
           }
-          
+
           // currently we are not allowing unbounded ranges, so they must sit under an AND node.
           if (node.getType() == ParserTreeConstants.JJTANDNODE) {
             // check for ranges
@@ -979,10 +1027,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         if (allNegated) {
           node.setChildrenAllNegated(true);
         }
-        
+
         // see if the AND node had a range.
         if (node.getType() == ParserTreeConstants.JJTANDNODE) {
-          
+
           // if(ranges.containsKey(node.getFieldName())){
           if (!ranges.isEmpty()) {
             // we have a range, process it
@@ -994,7 +1042,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               node.setType(ParserTreeConstants.JJTORNODE);
               node.removeAllChildren();
               // RangeBounds rb = ranges.get(node.getFieldName());
-              
+
               for (Entry<Text,RangeBounds> entry : ranges.entrySet()) {
                 Text fName = entry.getKey();
                 RangeBounds rb = entry.getValue();
@@ -1004,41 +1052,44 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
                 node.setUpperBound(rb.getUpper());
                 node.setRangeNode(true);
               }
-              
+
               rangerators.add(node);
-              
+
               if (log.isDebugEnabled()) {
                 log.debug("refactor: " + node.getContents());
                 log.debug("refactor: " + node.getLowerBound() + "  " + node.getUpperBound());
               }
-              
+
             } else {
               if (log.isDebugEnabled()) {
                 log.debug("AND range more than 2 children");
               }
               // node has range plus other children, create another node from the range
               // remove lt,le,gt,ge from parent and push in a single node
-              
+
               // removing nodes via enumeration doesn't work, push into a list
               // and walk backwards
-              List<BooleanLogicTreeNode> temp = new ArrayList<BooleanLogicTreeNode>();
+              List<BooleanLogicTreeNode> temp = new ArrayList<>();
               Enumeration<?> e = node.children();
               while (e.hasMoreElements()) {
                 BooleanLogicTreeNode c = (BooleanLogicTreeNode) e.nextElement();
                 temp.add(c);
               }
-              
+
               for (int j = temp.size() - 1; j >= 0; j--) {
                 BooleanLogicTreeNode c = temp.get(j);
-                if (c.getType() == JexlOperatorConstants.JJTLENODE || c.getType() == JexlOperatorConstants.JJTLTNODE
-                    || c.getType() == JexlOperatorConstants.JJTGENODE || c.getType() == JexlOperatorConstants.JJTGTNODE) {
+                if (c.getType() == JexlOperatorConstants.JJTLENODE
+                    || c.getType() == JexlOperatorConstants.JJTLTNODE
+                    || c.getType() == JexlOperatorConstants.JJTGENODE
+                    || c.getType() == JexlOperatorConstants.JJTGTNODE) {
                   c.removeFromParent();
                 }
               }
-              
+
               for (Entry<Text,RangeBounds> entry : ranges.entrySet()) {
                 Text fName = entry.getKey();
-                BooleanLogicTreeNode nchild = new BooleanLogicTreeNode(ParserTreeConstants.JJTORNODE, fName.toString(), "");
+                BooleanLogicTreeNode nchild =
+                    new BooleanLogicTreeNode(ParserTreeConstants.JJTORNODE, fName.toString(), "");
                 RangeBounds rb = entry.getValue();
                 nchild.setFieldValue(new Text(""));
                 nchild.setLowerBound(rb.getLower());
@@ -1047,21 +1098,21 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
                 node.add(nchild);
                 rangerators.add(nchild);
               }
-              
+
               if (log.isDebugEnabled()) {
                 log.debug("refactor: " + node.getContents());
               }
             }
           }
         }
-        
+
       }
     }
-    
+
     return myroot;
-    
+
   }
-  
+
   // If all children are of type SEL, roll this up into an AND or OR node.
   private static boolean canRollUp(BooleanLogicTreeNode parent) {
     if (log.isDebugEnabled()) {
@@ -1076,21 +1127,23 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     Enumeration<?> e = parent.children();
     while (e.hasMoreElements()) {
       BooleanLogicTreeNode child = (BooleanLogicTreeNode) e.nextElement();
-      
+
       if (child.getType() != ParserTreeConstants.JJTEQNODE) {// BooleanLogicTreeNode.NodeType.SEL) {
         if (log.isDebugEnabled()) {
-          log.debug("canRollUp: child.getType -> " + ParserTreeConstants.jjtNodeName[child.getType()] + " int: " + child.getType() + "  return false");
+          log.debug(
+              "canRollUp: child.getType -> " + ParserTreeConstants.jjtNodeName[child.getType()]
+                  + " int: " + child.getType() + "  return false");
         }
         return false;
       }
-      
+
       if (child.isNegated()) {
         if (log.isDebugEnabled()) {
           log.debug("canRollUp: child.isNegated, return false");
         }
         return false;
       }
-      
+
       if (child.getFieldValue().toString().contains("*")) {
         if (log.isDebugEnabled()) {
           log.debug("canRollUp: child has wildcard: " + child.getFieldValue());
@@ -1100,10 +1153,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     }
     return true;
   }
-  
+
   /**
-   * Small utility function to print out the depth-first enumeration of the tree. Specify the root or sub root of the tree you wish to view.
-   * 
+   * Small utility function to print out the depth-first enumeration of the tree. Specify the root
+   * or sub root of the tree you wish to view.
+   *
    * @param root
    *          The root node of the tree or sub-tree.
    */
@@ -1117,7 +1171,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       System.out.println(i + " : " + n);
     }
   }
-  
+
   public static void showBreadthFirstTraversal(BooleanLogicTreeNode root) {
     System.out.println("BreadthFirstTraversal");
     log.debug("BooleanLogicIterator.showBreadthFirstTraversal()");
@@ -1130,19 +1184,19 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       log.debug(i + " : " + n);
     }
   }
-  
+
   private void splitLeaves(BooleanLogicTreeNode node) {
     if (log.isDebugEnabled()) {
       log.debug("BoolLogic: splitLeaves()");
     }
-    positives = new PriorityQueue<BooleanLogicTreeNode>(10, new BooleanLogicTreeNodeComparator());
+    positives = new PriorityQueue<>(10, new BooleanLogicTreeNodeComparator());
     // positives = new ArrayList<BooleanLogicTreeNodeJexl>();
     negatives.clear();
-    
+
     Enumeration<?> dfe = node.depthFirstEnumeration();
     while (dfe.hasMoreElements()) {
       BooleanLogicTreeNode elem = (BooleanLogicTreeNode) dfe.nextElement();
-      
+
       if (elem.isLeaf()) {
         if (elem.isNegated()) {
           negatives.add(elem);
@@ -1152,7 +1206,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
     }
   }
-  
+
   private void reHeapPriorityQueue(BooleanLogicTreeNode node) {
     positives.clear();
     Enumeration<?> dfe = node.depthFirstEnumeration();
@@ -1165,23 +1219,27 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     }
   }
 
-  /* *************************************************************************
-   * The iterator interface methods.
+  /*
+   * ************************************************************************* The iterator
+   * interface methods.
    */
+  @Override
   public boolean hasTop() {
     return (topKey != null);
   }
-  
+
+  @Override
   public Key getTopKey() {
     if (log.isDebugEnabled()) {
       log.debug("getTopKey: " + topKey);
     }
     return topKey;
   }
-  
+
   private void setTopKey(Key key) {
     if (this.overallRange != null && key != null) {
-      if (overallRange.getEndKey() != null) { // if null end key, that means range is to the end of the tablet.
+      if (overallRange.getEndKey() != null) { // if null end key, that means range is to the end of
+                                              // the tablet.
         if (!this.overallRange.contains(key)) {
           topKey = null;
           return;
@@ -1190,21 +1248,22 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     }
     topKey = key;
   }
-  
+
+  @Override
   public Value getTopValue() {
     if (topValue == null) {
       topValue = new Value(new byte[0]);
     }
     return topValue;
   }
-  
+
   private void resetNegatives() {
     for (BooleanLogicTreeNode neg : negatives) {
       neg.setTopKey(null);
       neg.setValid(true);
     }
   }
-  
+
   private String getEventKeyUid(Key k) {
     if (k == null || k.getColumnFamily() == null) {
       return null;
@@ -1212,7 +1271,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       return k.getColumnFamily().toString();
     }
   }
-  
+
   private String getIndexKeyUid(Key k) {
     try {
       int idx = 0;
@@ -1223,17 +1282,18 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       return null;
     }
   }
-  
+
   /*
-   * Remember, the Key in the BooleanLogicTreeNode is different structurally than the Key in its sub iterator because the key BooleanLogic needs to return is an
-   * event key created from the index key (which is what the sub iterators are looking at!)
+   * Remember, the Key in the BooleanLogicTreeNode is different structurally than the Key in its sub
+   * iterator because the key BooleanLogic needs to return is an event key created from the index
+   * key (which is what the sub iterators are looking at!)
    */
   private Key getOptimizedAdvanceKey() throws IOException {
     if (log.isDebugEnabled()) {
       log.debug("getOptimizedAdvanceKey() called");
     }
     Enumeration<?> bfe = root.breadthFirstEnumeration();
-    ArrayList<BooleanLogicTreeNode> bfl = new ArrayList<BooleanLogicTreeNode>();
+    ArrayList<BooleanLogicTreeNode> bfl = new ArrayList<>();
     while (bfe.hasMoreElements()) {
       BooleanLogicTreeNode node = (BooleanLogicTreeNode) bfe.nextElement();
       if (!node.isNegated()) {
@@ -1242,7 +1302,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         bfl.add(node);
       }
     }
-    
+
     // walk the tree backwards
     for (int i = bfl.size() - 1; i >= 0; i--) {
       if (bfl.get(i).isLeaf() || bfl.get(i).isNegated()) {
@@ -1251,7 +1311,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
         continue;
       }
-      
+
       BooleanLogicTreeNode node = bfl.get(i);
       node.setDone(false);
       if (log.isDebugEnabled()) {
@@ -1264,11 +1324,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         boolean firstTime = true;
         while (children.hasMoreElements()) {
           BooleanLogicTreeNode child = (BooleanLogicTreeNode) children.nextElement();
-          
+
           if (child.isNegated() || child.isChildrenAllNegated()) {
             continue;
           }
-          
+
           // all advance keys were initially set from topkey for the leaves.
           if (child.getAdvanceKey() == null) {
             log.debug("\tchild does not advance key: " + child.printNode());
@@ -1278,7 +1338,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           } else {
             log.debug("\tchild advanceKey: " + child.getAdvanceKey());
           }
-          
+
           if (firstTime) {
             firstTime = false;
             max = child;
@@ -1287,10 +1347,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
             continue;
           }
-          
+
           log.debug("\tAND block, max: " + max);
           log.debug("\tAND block, child: " + child);
-          
+
           // first test row
           if (max.getAdvanceKey().getRow().compareTo(child.getAdvanceKey().getRow()) < 0) {
             max = child;
@@ -1299,7 +1359,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
             continue;
           }
-          
+
           // if rows are equal, test uids
           String uid_max = getEventKeyUid(max.getAdvanceKey());
           String uid_child = getEventKeyUid(child.getAdvanceKey());
@@ -1315,7 +1375,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               log.debug("\tuid_child: " + uid_child);
             }
           }
-          
+
           if (uid_max != null && uid_child != null) {
             if (uid_max.compareTo(uid_child) < 0) {
               max = child;
@@ -1340,7 +1400,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           }
           node.setDone(true);
         }
-        
+
       } else if (node.getType() == ParserTreeConstants.JJTORNODE) {
         // get min
         BooleanLogicTreeNode min = null;
@@ -1348,10 +1408,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         boolean firstTime = true;
         int numChildren = node.getChildCount();
         int allChildrenDone = 0;
-        
+
         while (children.hasMoreElements()) {
           BooleanLogicTreeNode child = (BooleanLogicTreeNode) children.nextElement();
-          
+
           if (log.isDebugEnabled()) {
             log.debug("\tOR block start, child: " + child);
           }
@@ -1376,16 +1436,17 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               break;
             }
           }
-          
+
           if (child.getAdvanceKey() == null) {
             log.debug("\tOR child doesn't have top or an AdvanceKey");
             continue;
           }
           if (firstTime) {
             if (log.isDebugEnabled()) {
-              log.debug("\tOR block, first valid node, min=child: " + child + "  advanceKey: " + child.getAdvanceKey());
+              log.debug("\tOR block, first valid node, min=child: " + child + "  advanceKey: "
+                  + child.getAdvanceKey());
             }
-            
+
             firstTime = false;
             min = child;
             continue;
@@ -1394,21 +1455,22 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             log.debug("\tOR block, min: " + min);
             log.debug("\tOR block, child: " + child);
           }
-          if (min.getAdvanceKey().getRow().toString().compareTo(child.getAdvanceKey().getRow().toString()) > 0) {
+          if (min.getAdvanceKey().getRow().toString()
+              .compareTo(child.getAdvanceKey().getRow().toString()) > 0) {
             // child row is less than min, set min to child
             min = child;
             if (log.isDebugEnabled()) {
               log.debug("\tmin row was greater than child, min=child: " + min);
             }
             continue;
-            
+
           } else if (min.getAdvanceKey().getRow().compareTo(child.getAdvanceKey().getRow()) < 0) {
             // min row is less child, skip
             if (log.isDebugEnabled()) {
               log.debug("\tmin row less than childs, keep min: " + min);
             }
             continue;
-            
+
           } else { // they're equal, test uids
             String uid_min = getEventKeyUid(min.getAdvanceKey());
             String uid_child = getEventKeyUid(child.getAdvanceKey());
@@ -1417,7 +1479,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
             if (uid_min != null && uid_child != null) {
               if (uid_min.compareTo(uid_child) > 0) {
-                
+
                 min = child;
                 if (log.isDebugEnabled()) {
                   log.debug("\tuid_min > uid_child, set min to child: " + min);
@@ -1430,11 +1492,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               min = child;
             }
           }
-        }// end while
+        } // end while
         if (log.isDebugEnabled()) {
           log.debug("attemptOptimization: OR with children, min: " + min);
         }
-        
+
         if (min != null) {
           if (log.isDebugEnabled()) {
             log.debug("OR block, min != null, advanceKey? " + min.getAdvanceKey());
@@ -1445,13 +1507,13 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           node.setAdvanceKey(null);
           node.setDone(true);
         }
-        
+
       } else if (node.getType() == ParserTreeConstants.JJTJEXLSCRIPT) { // HEAD node
         if (log.isDebugEnabled()) {
           log.debug("getOptimizedAdvanceKey, HEAD node");
         }
         BooleanLogicTreeNode child = (BooleanLogicTreeNode) node.getFirstChild();
-        
+
         if (child.isDone()) {
           if (log.isDebugEnabled()) {
             log.debug("Head node's child is done, need to move to the next row");
@@ -1472,21 +1534,23 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             k = new Key(row);
             child.setAdvanceKey(k);
           }
-          
+
         }
         if (log.isDebugEnabled()) {
           log.debug("advance Key: " + child.getAdvanceKey());
         }
-        Key key = new Key(child.getAdvanceKey().getRow(), child.getAdvanceKey().getColumnFamily(), child.getAdvanceKey().getColumnFamily());
+        Key key = new Key(child.getAdvanceKey().getRow(), child.getAdvanceKey().getColumnFamily(),
+            child.getAdvanceKey().getColumnFamily());
         return key;
-        
-      }// end else
-    }// end for
+
+      } // end else
+    } // end for
     return null;
   }
-  
+
   /*
-   * The incoming jump key has been formatted into the structure of an index key, but the leaves are eventkeys
+   * The incoming jump key has been formatted into the structure of an index key, but the leaves are
+   * eventkeys
    */
   private boolean jump(Key jumpKey) throws IOException {
     if (log.isDebugEnabled()) {
@@ -1497,7 +1561,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       BooleanLogicTreeNode n = (BooleanLogicTreeNode) bfe.nextElement();
       n.setAdvanceKey(null);
     } // now advance all nodes to the advance key
-    
+
     if (log.isDebugEnabled()) {
       log.debug("jump, All leaves need to advance to: " + jumpKey);
     }
@@ -1512,7 +1576,8 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     }
     return ok;
   }
-  
+
+  @Override
   @SuppressWarnings("unused")
   public void next() throws IOException {
     if (log.isDebugEnabled()) {
@@ -1524,12 +1589,12 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       setTopKey(null);
       return;
     }
-    
+
     Key previousJumpKey = null;
     while (!finished) {
-      
+
       Key jumpKey = this.getOptimizedAdvanceKey();
-      
+
       if (jumpKey == null) { // stop?
         if (log.isDebugEnabled()) {
           log.debug("next(), jump key is null, stopping");
@@ -1537,7 +1602,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         setTopKey(null);
         return;
       }
-      
+
       if (log.isDebugEnabled()) {
         if (jumpKey != null) {
           log.debug("next(), jumpKey: " + jumpKey);
@@ -1545,31 +1610,33 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           log.debug("jumpKey is null");
         }
       }
-      
+
       boolean same = false;
       if (jumpKey != null && topKey != null) {
         // check that the uid's are not the same
         same = getIndexKeyUid(jumpKey).equals(getEventKeyUid(topKey));
         if (log.isDebugEnabled()) {
-          log.debug("jumpKeyUid: " + getIndexKeyUid(jumpKey) + "  topKeyUid: " + getEventKeyUid(topKey));
+          log.debug(
+              "jumpKeyUid: " + getIndexKeyUid(jumpKey) + "  topKeyUid: " + getEventKeyUid(topKey));
         }
       }
-      
+
       if (log.isDebugEnabled()) {
         log.debug("previousJumpKey: " + previousJumpKey);
         log.debug("current JumpKey: " + jumpKey);
       }
-      
+
       if (jumpKey != null && !this.overallRange.contains(jumpKey)) {
         if (log.isDebugEnabled()) {
-          log.debug("jumpKey is outside of range, that means the next key is out of range, stopping");
+          log.debug(
+              "jumpKey is outside of range, that means the next key is out of range, stopping");
           log.debug("jumpKey: " + jumpKey + " overallRange.endKey: " + overallRange.getEndKey());
         }
         // stop
         setTopKey(null);
         return;
       }
-      
+
       boolean previousSame = false;
       if (previousJumpKey != null && jumpKey != null) {
         previousSame = previousJumpKey.equals(jumpKey);
@@ -1580,7 +1647,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         previousJumpKey = jumpKey;
         ok = jump(jumpKey); // attempt to jump everybody forward to this row and uid.
         // tryJump = false;
-        
+
         // now test the tree state.
         if (testTreeState()) {
           Key tempKey = root.getTopKey();
@@ -1591,7 +1658,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               continue;
             }
           }
-          
+
           if (root.getTopKey().equals(tempKey)) {
             // it's valid set nextKey and make sure it's not the same as topKey.
             if (log.isDebugEnabled()) {
@@ -1600,10 +1667,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               } else {
                 log.debug("next, this.root.getTopKey() is null");
               }
-              
+
               if (topKey != null) {
                 log.debug("topKey->" + topKey);
-                
+
               } else {
                 log.debug("topKey is null");
               }
@@ -1615,11 +1682,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
           }
         }
-        
+
         // --------------------------------------
         // Regular next block
       } else {
-        
+
         reHeapPriorityQueue(this.root);
         BooleanLogicTreeNode node;
 
@@ -1628,13 +1695,13 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           if (!node.isDone() && node.hasTop()) {
             break;
           }
-          
+
           if (positives.isEmpty()) {
             setTopKey(null);
             return;
           }
         }
-        
+
         if (log.isDebugEnabled()) {
           if (jumpKey == null) {
             log.debug("no jump, jumpKey is null");
@@ -1648,7 +1715,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         }
         node.next();
         resetNegatives();
-        
+
         if (!node.hasTop()) {
           // it may be part of an or, so it could be ok.
           node.setValid(false);
@@ -1665,7 +1732,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
                   finished = true;
                   return;
                 }
-                
+
               } else {
                 setTopKey(this.root.getTopKey());
                 return;
@@ -1673,12 +1740,12 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
             }
           }
         } else {
-          
+
           if (overallRange.contains(node.getTopKey())) {
             // the node had something so push it back into priority queue
             positives.add(node);
           }
-          
+
           // now test the tree state.
           if (testTreeState()) {
             Key tempKey = root.getTopKey();
@@ -1689,7 +1756,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
                 continue;
               }
             }
-            
+
             if (root.getTopKey().equals(tempKey)) {
               // it's valid set nextKey and make sure it's not the same as topKey.
               if (log.isDebugEnabled()) {
@@ -1698,10 +1765,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
                 } else {
                   log.debug("next, this.root.getTopKey() is null");
                 }
-                
+
                 if (topKey != null) {
                   log.debug("topKey->" + topKey);
-                  
+
                 } else {
                   log.debug("topKey is null");
                 }
@@ -1724,9 +1791,9 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
               }
             }
           }
-          
+
         }
-        
+
         // is the priority queue empty?
         if (positives.isEmpty()) {
           finished = true;
@@ -1735,7 +1802,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
     }
   }
-  
+
   /*
    * create a range for the given row of the
    */
@@ -1745,17 +1812,19 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     }
     Text rowID = k.getRow();
     Text colFam = k.getColumnFamily();
-    
+
     for (BooleanLogicTreeNode neg : negatives) {
-      Key startKey = new Key(rowID, neg.getFieldName(), new Text(neg.getFieldValue() + "\0" + colFam));
-      Key endKey = new Key(rowID, neg.getFieldName(), new Text(neg.getFieldValue() + "\0" + colFam + "\1"));
+      Key startKey =
+          new Key(rowID, neg.getFieldName(), new Text(neg.getFieldValue() + "\0" + colFam));
+      Key endKey =
+          new Key(rowID, neg.getFieldName(), new Text(neg.getFieldValue() + "\0" + colFam + "\1"));
       Range range = new Range(startKey, true, endKey, false);
-      
+
       if (log.isDebugEnabled()) {
         log.debug("range: " + range);
       }
       neg.seek(range, EMPTY_COL_FAMS, false);
-      
+
       if (neg.hasTop()) {
         neg.setValid(false);
       }
@@ -1768,8 +1837,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
     }
   }
-  
-  public void seek(Range range, Collection<ByteSequence> columnFamilies, boolean inclusive) throws IOException {
+
+  @Override
+  public void seek(Range range, Collection<ByteSequence> columnFamilies, boolean inclusive)
+      throws IOException {
     this.overallRange = range;
     if (log.isDebugEnabled()) {
       log.debug("seek, overallRange: " + overallRange);
@@ -1778,11 +1849,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
     // NOTE: All of our iterators exist in the leaves.
     topKey = null;
     root.setTopKey(null);
-    
+
     // set up the range iterators for the given seek range.
     // these should exist in the positives as OR iterators, but need special setup.
     setupRangerators(range);
-    
+
     // don't take this out, if you jump rows on the tablet you could have
     // pulled nodes out of the positives priority queue. On a call to seek
     // it is usually jumping rows, so everything needs to become possibly
@@ -1799,11 +1870,11 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         log.debug("leaf: " + node.getContents() + " topKey: " + tk);
       }
     }
-    
+
     // Now that all nodes have been seek'd recreate the priorityQueue to sort them properly.
     splitLeaves(this.root);
     resetNegatives();
-    
+
     // test Tree, if it's not valid, call next
     if (testTreeState() && overallRange.contains(root.getTopKey())) {
       if (!negatives.isEmpty()) {
@@ -1813,9 +1884,10 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
           next();
         }
       }
-      
+
       if (log.isDebugEnabled()) {
-        log.debug("overallRange " + overallRange + " topKey " + this.root.getTopKey() + " contains " + overallRange.contains(this.root.getTopKey()));
+        log.debug("overallRange " + overallRange + " topKey " + this.root.getTopKey() + " contains "
+            + overallRange.contains(this.root.getTopKey()));
       }
 
       if (overallRange.contains(this.root.getTopKey()) && this.root.isValid()) {
@@ -1828,14 +1900,14 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       // seek failed in the logic test, but there may be other possible
       // values which satisfy the logic tree. Make sure our iterators aren't
       // all null, and then call next.
-      
+
       // if(!root.hasTop()){
       if (log.isDebugEnabled()) {
         log.debug("seek, testTreeState is false, HEAD(root) does not have top");
       }
       // check nodes in positives to see if they're all null/outside range
       // or if nothing percolated up to root yet.
-      List<BooleanLogicTreeNode> removals = new ArrayList<BooleanLogicTreeNode>();
+      List<BooleanLogicTreeNode> removals = new ArrayList<>();
       for (BooleanLogicTreeNode node : positives) {
         if (!node.hasTop() || !overallRange.contains(node.getTopKey())) {
           removals.add(node);
@@ -1848,29 +1920,31 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       return;
     }
   }
-  
+
   private int compare(Key k1, Key k2) {
     if (k1 != null && k2 != null) {
       return k1.compareTo(k2);
     } else if (k1 == null && k2 == null) {
       return 0;
-    } else if (k1 == null) { // in this case, null is considered bigger b/c it's closer to the end of the table.
+    } else if (k1 == null) { // in this case, null is considered bigger b/c it's closer to the end
+                             // of the table.
       return 1;
     } else {
       return -1;
     }
   }
-  
+
   private void setupRangerators(Range range) throws IOException {
     if (rangerators == null || rangerators.isEmpty()) {
       return;
     }
     for (BooleanLogicTreeNode node : rangerators) {
-      Set<String> fValues = new HashSet<String>();
+      Set<String> fValues = new HashSet<>();
       OrIterator orIter = new OrIterator();
       SortedKeyValueIterator<Key,Value> siter = sourceIterator.deepCopy(env);
       // create UniqFieldNameValueIterator to find uniq field names values
-      UniqFieldNameValueIterator uniq = new UniqFieldNameValueIterator(node.getFieldName(), node.getLowerBound(), node.getUpperBound());
+      UniqFieldNameValueIterator uniq = new UniqFieldNameValueIterator(node.getFieldName(),
+          node.getLowerBound(), node.getUpperBound());
       uniq.setSource(siter);
       uniq.seek(range, EMPTY_COL_FAMS, false);
       while (uniq.hasTop()) {
@@ -1891,18 +1965,19 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       }
       node.setUserObject(orIter);
     }
-    
+
   }
-  
-  /* *************************************************************************
-   * Inner classes
+
+  /*
+   * ************************************************************************* Inner classes
    */
   public class BooleanLogicTreeNodeComparator implements Comparator<Object> {
-    
+
+    @Override
     public int compare(Object o1, Object o2) {
       BooleanLogicTreeNode n1 = (BooleanLogicTreeNode) o1;
       BooleanLogicTreeNode n2 = (BooleanLogicTreeNode) o2;
-      
+
       Key k1 = n1.getTopKey();
       Key k2 = n2.getTopKey();
       if (log.isDebugEnabled()) {
@@ -1917,7 +1992,7 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
         log.debug("BooleanLogicTreeNodeComparator   \tt1: " + t1 + "  t2: " + t2);
       }
       // return t1.compareTo(t2);
-      
+
       if (k1 != null && k2 != null) {
         return k1.compareTo(k2);
       } else if (k1 == null && k2 == null) {
@@ -1927,15 +2002,18 @@ public class BooleanLogicIterator implements SortedKeyValueIterator<Key,Value>, 
       } else {
         return -1;
       }
-      
+
     }
   }
-  
+
+  @Override
   public IteratorOptions describeOptions() {
-    return new IteratorOptions(getClass().getSimpleName(), "evaluates event objects against an expression", Collections.singletonMap(QUERY_OPTION,
-        "query expression"), null);
+    return new IteratorOptions(getClass().getSimpleName(),
+        "evaluates event objects against an expression",
+        Collections.singletonMap(QUERY_OPTION, "query expression"), null);
   }
-  
+
+  @Override
   public boolean validateOptions(Map<String,String> options) {
     if (!options.containsKey(QUERY_OPTION)) {
       return false;

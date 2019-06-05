@@ -19,14 +19,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-      <groupId>org.apache</groupId>
-      <artifactId>apache</artifactId>
-      <version>18</version>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>21</version>
   </parent>
 
   <groupId>org.apache.accumulo</groupId>
   <artifactId>accumulo-wikisearch</artifactId>
-  <version>1.8.0</version>
+  <version>2.0.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>accumulo-wikisearch</name>
@@ -37,15 +37,18 @@
   </modules>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.accumulo>${project.version}</version.accumulo>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <version.accumulo>2.0.0-alpha-2</version.accumulo>
     <version.collections>3.2.1</version.collections>
     <version.commons-codec>1.5</version.commons-codec>
+    <version.commons-configuration>1.10</version.commons-configuration>
     <version.commons-jexl>2.0.1</version.commons-jexl>
     <version.commons-lang>2.4</version.commons-lang>
     <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
-    <version.guava>11.0.2</version.guava>
-    <version.hadoop>2.6.4</version.hadoop>
-    <version.htrace>3.1.0-incubating</version.htrace>
+    <version.guava>27.0-jre</version.guava>
+    <version.hadoop>3.1.1</version.hadoop>
+    <version.htrace>3.2.0-incubating</version.htrace>
     <version.jaxrs>2.1.0.GA</version.jaxrs>
     <version.junit>4.11</version.junit>
     <version.kryo>1.04</version.kryo>
@@ -56,50 +59,71 @@
     <version.lucene-wikipedia>3.0.2</version.lucene-wikipedia>
     <version.minlog>1.2</version.minlog>
     <version.protobuf>2.5.0</version.protobuf>
-    <version.thrift>0.9.3</version.thrift>
-    <version.zookeeper>3.3.1</version.zookeeper>
+    <version.thrift>0.12.0</version.thrift>
+    <version.zookeeper>3.4.14</version.zookeeper>
   </properties>
   <dependencyManagement>
     <dependencies>
-   <dependency>
-      <groupId>org.apache.accumulo</groupId>
-      <artifactId>accumulo-fate</artifactId>
-      <version>${version.accumulo}</version>
-   </dependency>
-     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
-      <version>${version.hadoop}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>${version.collections}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${version.junit}</version>
-    </dependency>
-     <dependency>
+      <dependency>
+        <groupId>javaee</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-client</artifactId>
+        <version>${version.hadoop}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-simplekdc</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.htrace</groupId>
+        <artifactId>htrace-core</artifactId>
+        <version>${version.htrace}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>3.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>${version.collections}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.5</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>3.6.1</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${version.junit}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.zookeeper</groupId>
         <artifactId>zookeeper</artifactId>
         <version>${version.zookeeper}</version>
         <exclusions>
-            <exclusion>
-                <groupId>jline</groupId>
-                <artifactId>jline</artifactId>
-            </exclusion>
+          <exclusion>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -149,6 +173,11 @@
         <version>${version.commons-codec}</version>
       </dependency>
       <dependency>
+        <groupId>commons-configuration</groupId>
+        <artifactId>commons-configuration</artifactId>
+        <version>${version.commons-configuration}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${version.commons-lang}</version>
@@ -174,6 +203,11 @@
         <groupId>org.apache.accumulo</groupId>
         <artifactId>accumulo-trace</artifactId>
         <version>${version.accumulo}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.accumulo</groupId>
+        <artifactId>wikisearch-ingest</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -210,11 +244,11 @@
         <artifactId>libthrift</artifactId>
         <version>${version.thrift}</version>
         <exclusions>
-            <!-- excluded to make the enforcer plug in happy-->
-            <exclusion>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-            </exclusion>
+          <!-- excluded to make the enforcer plug in happy-->
+          <exclusion>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -232,18 +266,24 @@
         <artifactId>jackson-mapper-asl</artifactId>
         <version>1.9.13</version>
       </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>2.7.8</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.8.5</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.3</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>central</id>
-      <name>Maven Repository Switchboard</name>
-      <url>http://repo1.maven.org/maven2</url>
-      <layout>default</layout>
-    </repository>
     <repository>
       <snapshots>
         <enabled>false</enabled>
@@ -255,21 +295,19 @@
     </repository>
   </repositories>
   <build>
-    <defaultGoal>package</defaultGoal>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-ejb-plugin</artifactId>
+          <version>2.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.3.1</version>
         <executions>
           <execution>
             <id>enforce-mvn</id>
@@ -287,7 +325,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
         <configuration>
           <filesets>
             <fileset>
@@ -302,7 +339,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
         <configuration>
           <outputDirectory>lib</outputDirectory>
           <archive>
@@ -321,42 +357,25 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
         <configuration>
-          <encoding>UTF-8</encoding>
           <quiet>true</quiet>
           <jarOutputDirectory>lib</jarOutputDirectory>
           <reportOutputDirectory>docs</reportOutputDirectory>
-          <javadocVersion>1.6</javadocVersion>
+          <javadocVersion>1.8</javadocVersion>
           <additionalJOption>-J-Xmx512m</additionalJOption>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.2.1</version>
         <configuration>
           <outputDirectory>lib</outputDirectory>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.17</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.8</version>
         <inherited>false</inherited>
         <executions>
           <execution>
@@ -367,7 +386,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <outputDirectory>../../lib</outputDirectory>
-              <!-- just grab the non-provided runtime dependencies -->
+                <!-- just grab the non-provided runtime dependencies -->
               <includeArtifactIds>commons-collections,commons-configuration,commons-io,commons-lang,jline,log4j,libthrift,commons-jci-core,commons-jci-fam,commons-logging,commons-logging-api</includeArtifactIds>
               <excludeGroupIds>accumulo</excludeGroupIds>
               <excludeTransitive>true</excludeTransitive>

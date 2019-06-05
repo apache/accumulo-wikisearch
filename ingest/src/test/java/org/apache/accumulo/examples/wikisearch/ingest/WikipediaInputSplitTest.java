@@ -23,11 +23,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.Assert;
-
 import org.apache.accumulo.examples.wikisearch.ingest.WikipediaInputFormat.WikipediaInputSplit;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class WikipediaInputSplitTest {
@@ -44,22 +43,22 @@ public class WikipediaInputSplitTest {
     split.write(out);
     out.close();
     baos.close();
-    
+
     ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
     DataInput in = new ObjectInputStream(bais);
-    
+
     WikipediaInputSplit split2 = new WikipediaInputSplit();
     split2.readFields(in);
     Assert.assertTrue(bais.available() == 0);
     bais.close();
-    
+
     Assert.assertTrue(split.getPartition() == split2.getPartition());
-    
+
     FileSplit fSplit2 = split2.getFileSplit();
     Assert.assertTrue(fSplit.getPath().equals(fSplit2.getPath()));
     Assert.assertTrue(fSplit.getStart() == fSplit2.getStart());
     Assert.assertTrue(fSplit.getLength() == fSplit2.getLength());
-    
+
     String[] hosts2 = fSplit2.getLocations();
     Assert.assertEquals(hosts.length, hosts2.length);
     for (int i = 0; i < hosts.length; i++) {

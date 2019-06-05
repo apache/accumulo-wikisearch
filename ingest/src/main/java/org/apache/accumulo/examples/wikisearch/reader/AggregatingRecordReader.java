@@ -16,7 +16,6 @@
  */
 package org.apache.accumulo.examples.wikisearch.reader;
 
-
 import java.io.IOException;
 
 import org.apache.accumulo.examples.wikisearch.ingest.WikipediaConfiguration;
@@ -27,18 +26,17 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-
 /**
- * This class aggregates Text values based on a start and end filter. An example use case for this would be XML data. This will not work with data that has
- * nested start and stop tokens.
- * 
+ * This class aggregates Text values based on a start and end filter. An example use case for this
+ * would be XML data. This will not work with data that has nested start and stop tokens.
+ *
  */
 public class AggregatingRecordReader extends LongLineRecordReader {
-  
+
   public static final String START_TOKEN = "aggregating.token.start";
   public static final String END_TOKEN = "aggregating.token.end";
   public static final String RETURN_PARTIAL_MATCHES = "aggregating.allow.partial";
-  
+
   private LongWritable key = new LongWritable();
   private String startToken = null;
   private String endToken = null;
@@ -47,35 +45,40 @@ public class AggregatingRecordReader extends LongLineRecordReader {
   private boolean startFound = false;
   private StringBuilder remainder = new StringBuilder(0);
   private boolean returnPartialMatches = false;
-  
+
   @Override
   public LongWritable getCurrentKey() {
     key.set(counter);
     return key;
   }
-  
+
   @Override
   public Text getCurrentValue() {
     return aggValue;
   }
-  
+
   @Override
   public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException {
-    super.initialize(((WikipediaInputSplit)genericSplit).getFileSplit(), context);
-    this.startToken = WikipediaConfiguration.isNull(context.getConfiguration(), START_TOKEN, String.class);
-    this.endToken = WikipediaConfiguration.isNull(context.getConfiguration(), END_TOKEN, String.class);
-    this.returnPartialMatches = context.getConfiguration().getBoolean(RETURN_PARTIAL_MATCHES, false);
-    
+    super.initialize(((WikipediaInputSplit) genericSplit).getFileSplit(), context);
+    this.startToken =
+        WikipediaConfiguration.isNull(context.getConfiguration(), START_TOKEN, String.class);
+    this.endToken =
+        WikipediaConfiguration.isNull(context.getConfiguration(), END_TOKEN, String.class);
+    this.returnPartialMatches =
+        context.getConfiguration().getBoolean(RETURN_PARTIAL_MATCHES, false);
+
     /*
-     * Text-appending works almost exactly like the + operator on Strings- it creates a byte array exactly the size of [prefix + suffix] and dumps the bytes
-     * into the new array. This module works by doing lots of little additions, one line at a time. With most XML, the documents are partitioned on line
-     * boundaries, so we will generally have lots of additions. Setting a large default byte array for a text object can avoid this and give us
-     * StringBuilder-like functionality for Text objects.
+     * Text-appending works almost exactly like the + operator on Strings- it creates a byte array
+     * exactly the size of [prefix + suffix] and dumps the bytes into the new array. This module
+     * works by doing lots of little additions, one line at a time. With most XML, the documents are
+     * partitioned on line boundaries, so we will generally have lots of additions. Setting a large
+     * default byte array for a text object can avoid this and give us StringBuilder-like
+     * functionality for Text objects.
      */
     byte[] txtBuffer = new byte[2048];
     aggValue.set(txtBuffer);
   }
-  
+
   @Override
   public boolean nextKeyValue() throws IOException {
     aggValue.clear();
@@ -83,10 +86,11 @@ public class AggregatingRecordReader extends LongLineRecordReader {
     boolean finished = false;
     // Find the start token
     while (!finished && (((hasNext = super.nextKeyValue()) == true) || remainder.length() > 0)) {
-      if (hasNext)
+      if (hasNext) {
         finished = process(super.getCurrentValue());
-      else
+      } else {
         finished = process(null);
+      }
       if (finished) {
         startFound = false;
         counter++;
@@ -104,24 +108,25 @@ public class AggregatingRecordReader extends LongLineRecordReader {
     }
     return false;
   }
-  
+
   /**
    * Populates aggValue with the contents of the Text object.
-   * 
-   * @param t
+   *
    * @return true if aggValue is complete, else false and needs more data.
    */
   private boolean process(Text t) {
-    
-    if (null != t)
+
+    if (null != t) {
       remainder.append(t.toString());
+    }
     while (remainder.length() > 0) {
       if (!startFound) {
         // If found, then begin aggregating at the start offset
         int start = remainder.indexOf(startToken);
         if (-1 != start) {
           // Append the start token to the aggregate value
-          TextUtil.textAppendNoNull(aggValue, remainder.substring(start, start + startToken.length()), false);
+          TextUtil.textAppendNoNull(aggValue,
+              remainder.substring(start, start + startToken.length()), false);
           // Remove to the end of the start token from the remainder
           remainder.delete(0, start + startToken.length());
           startFound = true;
@@ -157,7 +162,8 @@ public class AggregatingRecordReader extends LongLineRecordReader {
             return true;
           } else {
             // END_TOKEN was found. Extract to the end of END_TOKEN
-            TextUtil.textAppendNoNull(aggValue, remainder.substring(0, end + endToken.length()), false);
+            TextUtil.textAppendNoNull(aggValue, remainder.substring(0, end + endToken.length()),
+                false);
             // Remove from remainder up to the end of END_TOKEN
             remainder.delete(0, end + endToken.length());
             return true;
@@ -167,5 +173,5 @@ public class AggregatingRecordReader extends LongLineRecordReader {
     }
     return false;
   }
-  
+
 }

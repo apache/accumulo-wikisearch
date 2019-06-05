@@ -77,32 +77,31 @@ import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserVisitor;
 import org.apache.commons.jexl2.parser.SimpleNode;
 
-
 import com.google.common.collect.Multimap;
 
 /**
- * Class that parses the query and returns a tree of TreeNode's. This class rolls up clauses that are below like conjunctions (AND, OR) for the purposes of
- * creating intersecting iterators.
- * 
+ * Class that parses the query and returns a tree of TreeNode's. This class rolls up clauses that
+ * are below like conjunctions (AND, OR) for the purposes of creating intersecting iterators.
+ *
  */
 public class TreeBuilder implements ParserVisitor {
-  
+
   class RootNode extends JexlNode {
-    
+
     public RootNode(int id) {
       super(id);
     }
-    
+
     public RootNode(Parser p, int id) {
       super(p, id);
     }
-    
+
   }
-  
+
   private TreeNode rootNode = null;
   private TreeNode currentNode = null;
   private boolean currentlyInCheckChildren = false;
-  
+
   public TreeBuilder(String query) throws ParseException {
     Parser p = new Parser(new StringReader(";"));
     ASTJexlScript script = p.parse(new StringReader(query), null);
@@ -114,7 +113,7 @@ public class TreeBuilder implements ParserVisitor {
     EvaluationContext ctx = new EvaluationContext();
     script.childrenAccept(this, ctx);
   }
-  
+
   public TreeBuilder(ASTJexlScript script) {
     // Check to see if the child node is an AND or OR. If not, then
     // there must be just a single value in the query expression
@@ -124,69 +123,76 @@ public class TreeBuilder implements ParserVisitor {
     EvaluationContext ctx = new EvaluationContext();
     script.childrenAccept(this, ctx);
   }
-  
+
   public TreeNode getRootNode() {
     return this.rootNode;
   }
-  
+
+  @Override
   public Object visit(SimpleNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTJexlScript node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTBlock node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTAmbiguous node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTIfStatement node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTWhileStatement node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTForeachStatement node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTAssignment node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTTernaryNode node, Object data) {
     return null;
   }
-  
+
   /**
-   * @param node
-   * @param failClass
    * @return false if any of the nodes equals the fail class or contain a NOT in the subtree
    */
   private boolean nodeCheck(JexlNode node, Class<?> failClass) {
-    if (node.getClass().equals(failClass) || node.getClass().equals(ASTNotNode.class))
+    if (node.getClass().equals(failClass) || node.getClass().equals(ASTNotNode.class)) {
       return false;
-    else {
+    } else {
       for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-        if (!nodeCheck(node.jjtGetChild(i), failClass))
+        if (!nodeCheck(node.jjtGetChild(i), failClass)) {
           return false;
+        }
       }
     }
     return true;
   }
-  
+
   /**
-   * Checks to see if all of the child nodes are of the same type (AND/OR) and if so then aggregates all of the child terms. If not returns null.
-   * 
-   * @param parent
-   * @param parentNode
+   * Checks to see if all of the child nodes are of the same type (AND/OR) and if so then aggregates
+   * all of the child terms. If not returns null.
+   *
    * @return Map of field names to query terms or null
    */
   private Multimap<String,QueryTerm> checkChildren(JexlNode parent, EvaluationContext ctx) {
@@ -199,14 +205,16 @@ public class TreeBuilder implements ParserVisitor {
     if (parent.getClass().equals(ASTOrNode.class)) {
       for (int i = 0; i < parent.jjtGetNumChildren(); i++) {
         result = nodeCheck(parent.jjtGetChild(i), ASTAndNode.class);
-        if (!result)
+        if (!result) {
           break;
+        }
       }
     } else {
       for (int i = 0; i < parent.jjtGetNumChildren(); i++) {
         result = nodeCheck(parent.jjtGetChild(i), ASTOrNode.class);
-        if (!result)
+        if (!result) {
           break;
+        }
       }
     }
     if (result) {
@@ -225,7 +233,8 @@ public class TreeBuilder implements ParserVisitor {
     this.currentlyInCheckChildren = false;
     return rolledUpTerms;
   }
-  
+
+  @Override
   public Object visit(ASTOrNode node, Object data) {
     boolean previouslyInOrContext = false;
     EvaluationContext ctx = null;
@@ -266,11 +275,13 @@ public class TreeBuilder implements ParserVisitor {
       }
     }
     // reset the state
-    if (null != data && !previouslyInOrContext)
+    if (null != data && !previouslyInOrContext) {
       ctx.inOrContext = false;
+    }
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTAndNode node, Object data) {
     boolean previouslyInAndContext = false;
     EvaluationContext ctx = null;
@@ -310,23 +321,28 @@ public class TreeBuilder implements ParserVisitor {
         andNode.setTerms(terms);
       }
     }
-    if (null != data && !previouslyInAndContext)
+    if (null != data && !previouslyInAndContext) {
       ctx.inAndContext = false;
+    }
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTBitwiseOrNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTBitwiseXorNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTBitwiseAndNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTEQNode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -334,22 +350,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = false;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTNENode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -357,22 +377,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = true;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTLTNode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -380,22 +404,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = false;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTGTNode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -403,22 +431,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = false;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTLENode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -426,22 +458,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = false;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTGENode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -449,22 +485,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = false;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTERNode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -472,22 +512,26 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = false;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
-    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()), value.getObject());
+    QueryTerm term = new QueryTerm(negated, JexlOperatorConstants.getOperator(node.getClass()),
+        value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTNRNode node, Object data) {
     StringBuilder fieldName = new StringBuilder();
     ObjectHolder value = new ObjectHolder();
@@ -495,50 +539,60 @@ public class TreeBuilder implements ParserVisitor {
     Object left = node.jjtGetChild(0).jjtAccept(this, data);
     Object right = node.jjtGetChild(1).jjtAccept(this, data);
     // Ignore functions in the query
-    if (left instanceof FunctionResult || right instanceof FunctionResult)
+    if (left instanceof FunctionResult || right instanceof FunctionResult) {
       return null;
+    }
     decodeResults(left, right, fieldName, value);
     // We need to check to see if we are in a NOT context. If so,
     // then we need to reverse the negation.
     boolean negated = true;
     if (null != data && data instanceof EvaluationContext) {
       EvaluationContext ctx = (EvaluationContext) data;
-      if (ctx.inNotContext)
+      if (ctx.inNotContext) {
         negated = !negated;
+      }
     }
     QueryTerm term = new QueryTerm(negated, "!~", value.getObject());
     this.currentNode.getTerms().put(fieldName.toString(), term);
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTAdditiveNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTAdditiveOperator node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTMulNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTDivNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTModNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTUnaryMinusNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTBitwiseComplNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTNotNode node, Object data) {
     boolean previouslyInNotContext = false;
     EvaluationContext ctx = null;
@@ -559,59 +613,73 @@ public class TreeBuilder implements ParserVisitor {
     // Process both sides of this node.
     node.jjtGetChild(0).jjtAccept(this, ctx);
     // reset the state
-    if (null != data && !previouslyInNotContext)
+    if (null != data && !previouslyInNotContext) {
       ctx.inNotContext = false;
+    }
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTIdentifier node, Object data) {
     return new TermResult(node.image);
   }
-  
+
+  @Override
   public Object visit(ASTNullLiteral node, Object data) {
     return new LiteralResult(node.image);
   }
-  
+
+  @Override
   public Object visit(ASTTrueNode node, Object data) {
     return new LiteralResult(node.image);
   }
-  
+
+  @Override
   public Object visit(ASTFalseNode node, Object data) {
     return new LiteralResult(node.image);
   }
-  
+
+  @Override
   public Object visit(ASTIntegerLiteral node, Object data) {
     return new LiteralResult(node.image);
   }
-  
+
+  @Override
   public Object visit(ASTFloatLiteral node, Object data) {
     return new LiteralResult(node.image);
   }
-  
+
+  @Override
   public Object visit(ASTStringLiteral node, Object data) {
     return new LiteralResult("'" + node.image + "'");
   }
-  
+
+  @Override
   public Object visit(ASTArrayLiteral node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTMapLiteral node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTMapEntry node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTEmptyFunction node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTSizeFunction node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTFunctionNode node, Object data) {
     // objectNode 0 is the prefix
     // objectNode 1 is the identifier , the others are parameters.
@@ -628,28 +696,34 @@ public class TreeBuilder implements ParserVisitor {
     }
     return fr;
   }
-  
+
+  @Override
   public Object visit(ASTMethodNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTSizeMethod node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTConstructorNode node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTArrayAccess node, Object data) {
     return null;
   }
-  
+
+  @Override
   public Object visit(ASTReference node, Object data) {
     return node.jjtGetChild(0).jjtAccept(this, data);
   }
-  
-  private void decodeResults(Object left, Object right, StringBuilder fieldName, ObjectHolder holder) {
+
+  private void decodeResults(Object left, Object right, StringBuilder fieldName,
+      ObjectHolder holder) {
     if (left instanceof TermResult) {
       TermResult tr = (TermResult) left;
       fieldName.append((String) tr.value);
@@ -667,7 +741,7 @@ public class TreeBuilder implements ParserVisitor {
       } else {
         throw new IllegalArgumentException("Object mismatch");
       }
-      
+
     } else {
       throw new IllegalArgumentException("No Term specified in query");
     }

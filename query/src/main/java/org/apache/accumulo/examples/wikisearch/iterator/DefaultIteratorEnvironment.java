@@ -16,31 +16,33 @@
  */
 package org.apache.accumulo.examples.wikisearch.iterator;
 
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
+import java.io.IOException;
+
 import org.apache.accumulo.core.client.sample.SamplerConfiguration;
+import org.apache.accumulo.core.conf.AccumuloConfiguration;
+import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
+import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MapFileIterator;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
-
-import java.io.IOException;
 
 public class DefaultIteratorEnvironment implements IteratorEnvironment {
 
   AccumuloConfiguration conf;
 
   public DefaultIteratorEnvironment() {
-    this.conf = AccumuloConfiguration.getDefaultConfiguration();
+    this.conf = DefaultConfiguration.getInstance();
   }
 
   @Override
-  public SortedKeyValueIterator<Key,Value> reserveMapFileReader(String mapFileName) throws IOException {
+  public SortedKeyValueIterator<Key,Value> reserveMapFileReader(String mapFileName)
+      throws IOException {
     Configuration conf = CachedConfiguration.getInstance();
     FileSystem fs = FileSystem.get(conf);
     return new MapFileIterator(this.conf, fs, mapFileName, conf);
@@ -84,5 +86,10 @@ public class DefaultIteratorEnvironment implements IteratorEnvironment {
   @Override
   public IteratorEnvironment cloneWithSamplingEnabled() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isUserCompaction() {
+    return false;
   }
 }

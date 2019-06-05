@@ -35,21 +35,21 @@ public class WikipediaConfiguration {
   public final static String USER = "wikipedia.accumulo.user";
   public final static String PASSWORD = "wikipedia.accumulo.password";
   public final static String TABLE_NAME = "wikipedia.accumulo.table";
-  
+
   public final static String ZOOKEEPERS = "wikipedia.accumulo.zookeepers";
-  
+
   public final static String NAMESPACES_FILENAME = "wikipedia.namespaces.filename";
   public final static String LANGUAGES_FILENAME = "wikipedia.languages.filename";
   public final static String WORKING_DIRECTORY = "wikipedia.ingest.working";
-  
+
   public final static String ANALYZER = "wikipedia.index.analyzer";
-  
+
   public final static String NUM_PARTITIONS = "wikipedia.ingest.partitions";
 
   public final static String NUM_GROUPS = "wikipedia.ingest.groups";
 
   public final static String PARTITIONED_ARTICLES_DIRECTORY = "wikipedia.partitioned.directory";
-  
+
   public final static String RUN_PARTITIONER = "wikipedia.run.partitioner";
   public final static String RUN_INGEST = "wikipedia.run.ingest";
   public final static String BULK_INGEST = "wikipedia.bulk.ingest";
@@ -57,12 +57,11 @@ public class WikipediaConfiguration {
   public final static String BULK_INGEST_FAILURE_DIR = "wikipedia.bulk.ingest.failure.dir";
   public final static String BULK_INGEST_BUFFER_SIZE = "wikipedia.bulk.ingest.buffer.size";
   public final static String PARTITIONED_INPUT_MIN_SPLIT_SIZE = "wikipedia.min.input.split.size";
-  
-  
+
   public static String getUser(Configuration conf) {
     return conf.get(USER);
-  };
-  
+  }
+
   public static byte[] getPassword(Configuration conf) {
     String pass = conf.get(PASSWORD);
     if (pass == null) {
@@ -70,7 +69,7 @@ public class WikipediaConfiguration {
     }
     return pass.getBytes();
   }
-  
+
   public static String getTableName(Configuration conf) {
     String tablename = conf.get(TABLE_NAME);
     if (tablename == null) {
@@ -78,11 +77,11 @@ public class WikipediaConfiguration {
     }
     return tablename;
   }
-  
+
   public static String getInstanceName(Configuration conf) {
     return conf.get(INSTANCE_NAME);
   }
-  
+
   public static String getZookeepers(Configuration conf) {
     String zookeepers = conf.get(ZOOKEEPERS);
     if (zookeepers == null) {
@@ -90,47 +89,51 @@ public class WikipediaConfiguration {
     }
     return zookeepers;
   }
-  
+
   public static Path getNamespacesFile(Configuration conf) {
-    String filename = conf.get(NAMESPACES_FILENAME, new Path(getWorkingDirectory(conf), "namespaces.dat").toString());
+    String filename = conf.get(NAMESPACES_FILENAME,
+        new Path(getWorkingDirectory(conf), "namespaces.dat").toString());
     return new Path(filename);
   }
-  
+
   public static Path getLanguagesFile(Configuration conf) {
-    String filename = conf.get(LANGUAGES_FILENAME, new Path(getWorkingDirectory(conf), "languages.txt").toString());
+    String filename = conf.get(LANGUAGES_FILENAME,
+        new Path(getWorkingDirectory(conf), "languages.txt").toString());
     return new Path(filename);
   }
-  
+
   public static Path getWorkingDirectory(Configuration conf) {
     String filename = conf.get(WORKING_DIRECTORY);
     return new Path(filename);
   }
-  
+
   public static Analyzer getAnalyzer(Configuration conf) throws IOException {
-    Class<? extends Analyzer> analyzerClass = conf.getClass(ANALYZER, SimpleAnalyzer.class, Analyzer.class);
+    Class<? extends Analyzer> analyzerClass =
+        conf.getClass(ANALYZER, SimpleAnalyzer.class, Analyzer.class);
     return ReflectionUtils.newInstance(analyzerClass, conf);
   }
-  
-  public static Connector getConnector(Configuration conf) throws AccumuloException, AccumuloSecurityException {
+
+  public static Connector getConnector(Configuration conf)
+      throws AccumuloException, AccumuloSecurityException {
     return getInstance(conf).getConnector(getUser(conf), getPassword(conf));
   }
-  
+
   public static Instance getInstance(Configuration conf) {
     return new ZooKeeperInstance(getInstanceName(conf), getZookeepers(conf));
   }
-  
+
   public static int getNumPartitions(Configuration conf) {
     return conf.getInt(NUM_PARTITIONS, 25);
   }
-  
+
   public static int getNumGroups(Configuration conf) {
     return conf.getInt(NUM_GROUPS, 1);
   }
-  
+
   public static Path getPartitionedArticlesPath(Configuration conf) {
     return new Path(conf.get(PARTITIONED_ARTICLES_DIRECTORY));
   }
-  
+
   public static long getMinInputSplitSize(Configuration conf) {
     return conf.getLong(PARTITIONED_INPUT_MIN_SPLIT_SIZE, 1l << 27);
   }
@@ -154,18 +157,14 @@ public class WikipediaConfiguration {
   public static String bulkIngestFailureDir(Configuration conf) {
     return conf.get(BULK_INGEST_FAILURE_DIR);
   }
-  
+
   public static long bulkIngestBufferSize(Configuration conf) {
-    return conf.getLong(BULK_INGEST_BUFFER_SIZE,1l<<28);
+    return conf.getLong(BULK_INGEST_BUFFER_SIZE, 1l << 28);
   }
 
   /**
    * Helper method to get properties from Hadoop configuration
-   * 
-   * @param <T>
-   * @param conf
-   * @param propertyName
-   * @param resultClass
+   *
    * @throws IllegalArgumentException
    *           if property is not defined, null, or empty. Or if resultClass is not handled.
    * @return value of property
@@ -173,26 +172,28 @@ public class WikipediaConfiguration {
   @SuppressWarnings("unchecked")
   public static <T> T isNull(Configuration conf, String propertyName, Class<T> resultClass) {
     String p = conf.get(propertyName);
-    if (StringUtils.isEmpty(p))
+    if (StringUtils.isEmpty(p)) {
       throw new IllegalArgumentException(propertyName + " must be specified");
-    
-    if (resultClass.equals(String.class))
+    }
+
+    if (resultClass.equals(String.class)) {
       return (T) p;
-    else if (resultClass.equals(String[].class))
+    } else if (resultClass.equals(String[].class)) {
       return (T) conf.getStrings(propertyName);
-    else if (resultClass.equals(Boolean.class))
+    } else if (resultClass.equals(Boolean.class)) {
       return (T) Boolean.valueOf(p);
-    else if (resultClass.equals(Long.class))
+    } else if (resultClass.equals(Long.class)) {
       return (T) Long.valueOf(p);
-    else if (resultClass.equals(Integer.class))
+    } else if (resultClass.equals(Integer.class)) {
       return (T) Integer.valueOf(p);
-    else if (resultClass.equals(Float.class))
+    } else if (resultClass.equals(Float.class)) {
       return (T) Float.valueOf(p);
-    else if (resultClass.equals(Double.class))
+    } else if (resultClass.equals(Double.class)) {
       return (T) Double.valueOf(p);
-    else
+    } else {
       throw new IllegalArgumentException(resultClass.getSimpleName() + " is unhandled.");
-    
+    }
+
   }
 
 }
