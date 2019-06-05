@@ -54,9 +54,9 @@
     <version.kryo>1.04</version.kryo>
     <version.log4j>1.2.16</version.log4j>
     <version.log4j-extras>1.0</version.log4j-extras>
-    <version.lucene>3.0.2</version.lucene>
-    <version.lucene-analyzers>3.0.2</version.lucene-analyzers>
-    <version.lucene-wikipedia>3.0.2</version.lucene-wikipedia>
+    <version.lucene>3.6.2</version.lucene>
+    <version.lucene-analyzers>3.6.2</version.lucene-analyzers>
+    <version.lucene-wikipedia>3.0.3</version.lucene-wikipedia>
     <version.minlog>1.2</version.minlog>
     <version.protobuf>2.5.0</version.protobuf>
     <version.thrift>0.12.0</version.thrift>
