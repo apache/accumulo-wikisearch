@@ -47,8 +47,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
-import org.apache.lucene.wikipedia.analysis.WikipediaTokenizer;
+import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.apache.lucene.util.Attribute;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -223,31 +223,18 @@ public class WikipediaMapper extends Mapper<LongWritable,Text,Text,Mutation> {
   /**
    * Tokenize the wikipedia content
    */
-  static Set<String> getTokens(Article article) throws IOException {
+  static Set<String> getTokens(Article article) {
     Set<String> tokenList = new HashSet<>();
-    WikipediaTokenizer tok = new WikipediaTokenizer(new StringReader(article.getText()));
-    TermAttribute term = tok.addAttribute(TermAttribute.class);
-    try {
+    try (WikipediaTokenizer tok = new WikipediaTokenizer(new StringReader(article.getText()))) {
+      Attribute term = tok.addAttribute(Attribute.class);
       while (tok.incrementToken()) {
-        String token = term.term();
+        String token = term.toString();
         if (!StringUtils.isEmpty(token)) {
           tokenList.add(token);
         }
       }
     } catch (IOException e) {
       log.error("Error tokenizing text", e);
-    } finally {
-      try {
-        tok.end();
-      } catch (IOException e) {
-        log.error("Error calling end()", e);
-      } finally {
-        try {
-          tok.close();
-        } catch (IOException e) {
-          log.error("Error closing tokenizer", e);
-        }
-      }
     }
     return tokenList;
   }

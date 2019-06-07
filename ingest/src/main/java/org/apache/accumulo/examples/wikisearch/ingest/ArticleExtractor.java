@@ -31,7 +31,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.accumulo.examples.wikisearch.normalizer.LcNoDiacriticsNormalizer;
-import org.apache.accumulo.examples.wikisearch.normalizer.NumberNormalizer;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
@@ -39,7 +38,6 @@ import org.apache.hadoop.io.Writable;
 public class ArticleExtractor {
   
   public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'Z");
-  private static NumberNormalizer nn = new NumberNormalizer();
   private static LcNoDiacriticsNormalizer lcdn = new LcNoDiacriticsNormalizer();
   
   public static class Article implements Writable {
@@ -91,9 +89,11 @@ public class ArticleExtractor {
     
     public Map<String,String> getNormalizedFieldValues() {
       Map<String,String> fields = new HashMap<String,String>();
-      fields.put("ID", nn.normalizeFieldValue("ID", this.id));
+      //fields.put("ID", nn.normalizeFieldValue("ID", this.id));
+      fields.put("ID", Integer.toString(this.id));
       fields.put("TITLE", lcdn.normalizeFieldValue("TITLE", this.title));
-      fields.put("TIMESTAMP", nn.normalizeFieldValue("TIMESTAMP", this.timestamp));
+      //fields.put("TIMESTAMP", nn.normalizeFieldValue("TIMESTAMP", this.timestamp));
+      fields.put("TIMESTAMP", Long.toString(this.timestamp));
       fields.put("COMMENTS", lcdn.normalizeFieldValue("COMMENTS", this.comments));
       return fields;
     }

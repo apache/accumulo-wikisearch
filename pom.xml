@@ -54,9 +54,8 @@
     <version.kryo>1.04</version.kryo>
     <version.log4j>1.2.16</version.log4j>
     <version.log4j-extras>1.0</version.log4j-extras>
-    <version.lucene>3.6.2</version.lucene>
-    <version.lucene-analyzers>3.6.2</version.lucene-analyzers>
-    <version.lucene-wikipedia>3.0.3</version.lucene-wikipedia>
+    <version.lucene>7.1.0</version.lucene>
+    <version.lucene-analyzers>4.0.0</version.lucene-analyzers>
     <version.minlog>1.2</version.minlog>
     <version.protobuf>2.5.0</version.protobuf>
     <version.thrift>0.12.0</version.thrift>
@@ -226,18 +225,8 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-wikipedia</artifactId>
-        <version>${version.lucene-wikipedia}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
+        <artifactId>lucene-analyzers-common</artifactId>
+        <version>${version.lucene-analyzers}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.thrift</groupId>
@@ -386,7 +375,7 @@
             <phase>prepare-package</phase>
             <configuration>
               <outputDirectory>../../lib</outputDirectory>
-                <!-- just grab the non-provided runtime dependencies -->
+                &lt;!&ndash; just grab the non-provided runtime dependencies &ndash;&gt;
               <includeArtifactIds>commons-collections,commons-configuration,commons-io,commons-lang,jline,log4j,libthrift,commons-jci-core,commons-jci-fam,commons-logging,commons-logging-api</includeArtifactIds>
               <excludeGroupIds>accumulo</excludeGroupIds>
               <excludeTransitive>true</excludeTransitive>

@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.SimpleAnalyzer;
 
 public class WikipediaConfiguration {
   public final static String INSTANCE_NAME = "wikipedia.accumulo.instance_name";
@@ -105,12 +104,6 @@ public class WikipediaConfiguration {
   public static Path getWorkingDirectory(Configuration conf) {
     String filename = conf.get(WORKING_DIRECTORY);
     return new Path(filename);
-  }
-
-  public static Analyzer getAnalyzer(Configuration conf) throws IOException {
-    Class<? extends Analyzer> analyzerClass =
-        conf.getClass(ANALYZER, SimpleAnalyzer.class, Analyzer.class);
-    return ReflectionUtils.newInstance(analyzerClass, conf);
   }
 
   public static Connector getConnector(Configuration conf)
