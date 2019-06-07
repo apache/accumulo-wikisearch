@@ -84,8 +84,8 @@
             <phase>prepare-package</phase>
             <configuration>
               <outputDirectory>lib</outputDirectory>
-              &lt;!&ndash; just grab the non-provided runtime dependencies &ndash;&gt;
-              &lt;!&ndash; XXX we include guava at the same version as hadoop 2 provides so that we have it on hadoop 1 &ndash;&gt;
+	      <!-- just grab the non-provided runtime dependencies -->
+	      <!-- XXX we include guava at the same version as hadoop 2 provides so that we have it on hadoop 1 -->
               <includeArtifactIds>commons-lang,guava,lucene-core,lucene-analyzers,lucene-wikipedia,protobuf-java,accumulo-core,hadoop-core,libthrift,zookeeper,commons-codec,accumulo-fate,accumulo-trace</includeArtifactIds>
               <excludeTransitive>false</excludeTransitive>
             </configuration>

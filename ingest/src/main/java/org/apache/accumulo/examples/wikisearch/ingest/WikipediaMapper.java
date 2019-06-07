@@ -226,13 +226,7 @@ public class WikipediaMapper extends Mapper<LongWritable,Text,Text,Mutation> {
   static Set<String> getTokens(Article article) {
     Set<String> tokenList = new HashSet<>();
     try (WikipediaTokenizer tok = new WikipediaTokenizer(new StringReader(article.getText()))) {
-      Attribute term = tok.addAttribute(Attribute.class);
-      while (tok.incrementToken()) {
-        String token = term.toString();
-        if (!StringUtils.isEmpty(token)) {
-          tokenList.add(token);
-        }
-      }
+      tokenList.add(tok.toString());
     } catch (IOException e) {
       log.error("Error tokenizing text", e);
     }
