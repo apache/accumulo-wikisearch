@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>21</version>
+    <version>23</version>
   </parent>
 
   <groupId>org.apache.accumulo</groupId>
@@ -37,6 +37,7 @@
   </modules>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>8</maven.compiler.release>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <version.accumulo>2.0.0-alpha-2</version.accumulo>
@@ -181,18 +182,6 @@
         <artifactId>commons-lang</artifactId>
         <version>${version.commons-lang}</version>
       </dependency>
-      <!-- XXX This is just to fix the dependency conflict in Hadoop 1 -->
-      <dependency>
-        <groupId>net.java.dev.jets3t</groupId>
-        <artifactId>jets3t</artifactId>
-        <version>0.7.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <dependency>
         <groupId>org.apache.accumulo</groupId>
         <artifactId>accumulo-core</artifactId>
@@ -243,7 +232,7 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.21</version>
+        <version>1.7.30</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
@@ -289,7 +278,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-ejb-plugin</artifactId>
-          <version>2.1</version>
+          <version>3.0.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
