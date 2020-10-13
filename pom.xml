@@ -51,7 +51,7 @@
     <version.hadoop>3.1.1</version.hadoop>
     <version.htrace>3.2.0-incubating</version.htrace>
     <version.jaxrs>2.1.0.GA</version.jaxrs>
-    <version.junit>4.11</version.junit>
+    <version.junit>4.13.1</version.junit>
     <version.kryo>1.04</version.kryo>
     <version.log4j>1.2.16</version.log4j>
     <version.log4j-extras>1.0</version.log4j-extras>
