@@ -59,7 +59,7 @@
     <version.lucene-analyzers>4.0.0</version.lucene-analyzers>
     <version.minlog>1.2</version.minlog>
     <version.protobuf>2.5.0</version.protobuf>
-    <version.thrift>0.12.0</version.thrift>
+    <version.thrift>0.14.0</version.thrift>
     <version.zookeeper>3.4.14</version.zookeeper>
   </properties>
   <dependencyManagement>
