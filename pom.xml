@@ -47,7 +47,7 @@
     <version.commons-jexl>2.0.1</version.commons-jexl>
     <version.commons-lang>2.4</version.commons-lang>
     <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
-    <version.guava>27.0-jre</version.guava>
+    <version.guava>29.0-jre</version.guava>
     <version.hadoop>3.1.1</version.hadoop>
     <version.htrace>3.2.0-incubating</version.htrace>
     <version.jaxrs>2.1.0.GA</version.jaxrs>
