@@ -6,32 +6,43 @@ package org.apache.accumulo.examples.wikisearch.protobuf;
 public final class TermWeight {
   private TermWeight() {}
   public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
+      com.google.protobuf.ExtensionRegistryLite registry) {
   }
-  public interface InfoOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
 
-    // required float normalizedTermFrequency = 1;
+  public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
+  }
+  public interface InfoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.apache.accumulo.examples.wikisearch.protobuf.Info)
+      com.google.protobuf.MessageOrBuilder {
+
     /**
      * <code>required float normalizedTermFrequency = 1;</code>
+     * @return Whether the normalizedTermFrequency field is set.
      */
     boolean hasNormalizedTermFrequency();
     /**
      * <code>required float normalizedTermFrequency = 1;</code>
+     * @return The normalizedTermFrequency.
      */
     float getNormalizedTermFrequency();
 
-    // repeated uint32 wordOffset = 2;
     /**
      * <code>repeated uint32 wordOffset = 2;</code>
+     * @return A list containing the wordOffset.
      */
     java.util.List<java.lang.Integer> getWordOffsetList();
     /**
      * <code>repeated uint32 wordOffset = 2;</code>
+     * @return The count of wordOffset.
      */
     int getWordOffsetCount();
     /**
      * <code>repeated uint32 wordOffset = 2;</code>
+     * @param index The index of the element to return.
+     * @return The wordOffset at the given index.
      */
     int getWordOffset(int index);
   }
@@ -39,35 +50,38 @@ public final class TermWeight {
    * Protobuf type {@code org.apache.accumulo.examples.wikisearch.protobuf.Info}
    */
   public static final class Info extends
-      com.google.protobuf.GeneratedMessage
-      implements InfoOrBuilder {
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:org.apache.accumulo.examples.wikisearch.protobuf.Info)
+      InfoOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use Info.newBuilder() to construct.
-    private Info(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Info(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Info(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Info defaultInstance;
-    public static Info getDefaultInstance() {
-      return defaultInstance;
+    private Info() {
+      wordOffset_ = emptyIntList();
     }
 
-    public Info getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new Info();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Info(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -79,37 +93,37 @@ public final class TermWeight {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 13: {
               bitField0_ |= 0x00000001;
               normalizedTermFrequency_ = input.readFloat();
               break;
             }
             case 16: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                wordOffset_ = new java.util.ArrayList<java.lang.Integer>();
+              if (!((mutable_bitField0_ & 0x00000002) != 0)) {
+                wordOffset_ = newIntList();
                 mutable_bitField0_ |= 0x00000002;
               }
-              wordOffset_.add(input.readUInt32());
+              wordOffset_.addInt(input.readUInt32());
               break;
             }
             case 18: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
-                wordOffset_ = new java.util.ArrayList<java.lang.Integer>();
+              if (!((mutable_bitField0_ & 0x00000002) != 0) && input.getBytesUntilLimit() > 0) {
+                wordOffset_ = newIntList();
                 mutable_bitField0_ |= 0x00000002;
               }
               while (input.getBytesUntilLimit() > 0) {
-                wordOffset_.add(input.readUInt32());
+                wordOffset_.addInt(input.readUInt32());
               }
               input.popLimit(limit);
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -118,10 +132,10 @@ public final class TermWeight {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          wordOffset_ = java.util.Collections.unmodifiableList(wordOffset_);
+        if (((mutable_bitField0_ & 0x00000002) != 0)) {
+          wordOffset_.makeImmutable(); // C
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -132,76 +146,67 @@ public final class TermWeight {
       return org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info.class, org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Info> PARSER =
-        new com.google.protobuf.AbstractParser<Info>() {
-      public Info parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Info(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Info> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
-    // required float normalizedTermFrequency = 1;
     public static final int NORMALIZEDTERMFREQUENCY_FIELD_NUMBER = 1;
     private float normalizedTermFrequency_;
     /**
      * <code>required float normalizedTermFrequency = 1;</code>
+     * @return Whether the normalizedTermFrequency field is set.
      */
+    @java.lang.Override
     public boolean hasNormalizedTermFrequency() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>required float normalizedTermFrequency = 1;</code>
+     * @return The normalizedTermFrequency.
      */
+    @java.lang.Override
     public float getNormalizedTermFrequency() {
       return normalizedTermFrequency_;
     }
 
-    // repeated uint32 wordOffset = 2;
     public static final int WORDOFFSET_FIELD_NUMBER = 2;
-    private java.util.List<java.lang.Integer> wordOffset_;
+    private com.google.protobuf.Internal.IntList wordOffset_;
     /**
      * <code>repeated uint32 wordOffset = 2;</code>
+     * @return A list containing the wordOffset.
      */
+    @java.lang.Override
     public java.util.List<java.lang.Integer>
         getWordOffsetList() {
       return wordOffset_;
     }
     /**
      * <code>repeated uint32 wordOffset = 2;</code>
+     * @return The count of wordOffset.
      */
     public int getWordOffsetCount() {
       return wordOffset_.size();
     }
     /**
      * <code>repeated uint32 wordOffset = 2;</code>
+     * @param index The index of the element to return.
+     * @return The wordOffset at the given index.
      */
     public int getWordOffset(int index) {
-      return wordOffset_.get(index);
+      return wordOffset_.getInt(index);
     }
 
-    private void initFields() {
-      normalizedTermFrequency_ = 0F;
-      wordOffset_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasNormalizedTermFrequency()) {
         memoizedIsInitialized = 0;
@@ -211,25 +216,25 @@ public final class TermWeight {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeFloat(1, normalizedTermFrequency_);
       }
       for (int i = 0; i < wordOffset_.size(); i++) {
-        output.writeUInt32(2, wordOffset_.get(i));
+        output.writeUInt32(2, wordOffset_.getInt(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeFloatSize(1, normalizedTermFrequency_);
       }
@@ -237,23 +242,70 @@ public final class TermWeight {
         int dataSize = 0;
         for (int i = 0; i < wordOffset_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeUInt32SizeNoTag(wordOffset_.get(i));
+            .computeUInt32SizeNoTag(wordOffset_.getInt(i));
         }
         size += dataSize;
         size += 1 * getWordOffsetList().size();
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info)) {
+        return super.equals(obj);
+      }
+      org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info other = (org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info) obj;
+
+      if (hasNormalizedTermFrequency() != other.hasNormalizedTermFrequency()) return false;
+      if (hasNormalizedTermFrequency()) {
+        if (java.lang.Float.floatToIntBits(getNormalizedTermFrequency())
+            != java.lang.Float.floatToIntBits(
+                other.getNormalizedTermFrequency())) return false;
+      }
+      if (!getWordOffsetList()
+          .equals(other.getWordOffsetList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasNormalizedTermFrequency()) {
+        hash = (37 * hash) + NORMALIZEDTERMFREQUENCY_FIELD_NUMBER;
+        hash = (53 * hash) + java.lang.Float.floatToIntBits(
+            getNormalizedTermFrequency());
+      }
+      if (getWordOffsetCount() > 0) {
+        hash = (37 * hash) + WORDOFFSET_FIELD_NUMBER;
+        hash = (53 * hash) + getWordOffsetList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -277,46 +329,59 @@ public final class TermWeight {
     }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -324,14 +389,16 @@ public final class TermWeight {
      * Protobuf type {@code org.apache.accumulo.examples.wikisearch.protobuf.Info}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.InfoOrBuilder {
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.apache.accumulo.examples.wikisearch.protobuf.Info)
+        org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.InfoOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -344,40 +411,37 @@ public final class TermWeight {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         normalizedTermFrequency_ = 0F;
         bitField0_ = (bitField0_ & ~0x00000001);
-        wordOffset_ = java.util.Collections.emptyList();
+        wordOffset_ = emptyIntList();
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor;
       }
 
+      @java.lang.Override
       public org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info getDefaultInstanceForType() {
         return org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info build() {
         org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info result = buildPartial();
         if (!result.isInitialized()) {
@@ -386,16 +450,17 @@ public final class TermWeight {
         return result;
       }
 
+      @java.lang.Override
       public org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info buildPartial() {
         org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info result = new org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.normalizedTermFrequency_ = normalizedTermFrequency_;
           to_bitField0_ |= 0x00000001;
         }
-        result.normalizedTermFrequency_ = normalizedTermFrequency_;
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          wordOffset_ = java.util.Collections.unmodifiableList(wordOffset_);
+        if (((bitField0_ & 0x00000002) != 0)) {
+          wordOffset_.makeImmutable();
           bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.wordOffset_ = wordOffset_;
@@ -404,6 +469,39 @@ public final class TermWeight {
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info) {
           return mergeFrom((org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info)other);
@@ -428,18 +526,20 @@ public final class TermWeight {
           }
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasNormalizedTermFrequency()) {
-          
           return false;
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -449,7 +549,7 @@ public final class TermWeight {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -459,22 +559,27 @@ public final class TermWeight {
       }
       private int bitField0_;
 
-      // required float normalizedTermFrequency = 1;
       private float normalizedTermFrequency_ ;
       /**
        * <code>required float normalizedTermFrequency = 1;</code>
+       * @return Whether the normalizedTermFrequency field is set.
        */
+      @java.lang.Override
       public boolean hasNormalizedTermFrequency() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        * <code>required float normalizedTermFrequency = 1;</code>
+       * @return The normalizedTermFrequency.
        */
+      @java.lang.Override
       public float getNormalizedTermFrequency() {
         return normalizedTermFrequency_;
       }
       /**
        * <code>required float normalizedTermFrequency = 1;</code>
+       * @param value The normalizedTermFrequency to set.
+       * @return This builder for chaining.
        */
       public Builder setNormalizedTermFrequency(float value) {
         bitField0_ |= 0x00000001;
@@ -484,6 +589,7 @@ public final class TermWeight {
       }
       /**
        * <code>required float normalizedTermFrequency = 1;</code>
+       * @return This builder for chaining.
        */
       public Builder clearNormalizedTermFrequency() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -492,94 +598,148 @@ public final class TermWeight {
         return this;
       }
 
-      // repeated uint32 wordOffset = 2;
-      private java.util.List<java.lang.Integer> wordOffset_ = java.util.Collections.emptyList();
+      private com.google.protobuf.Internal.IntList wordOffset_ = emptyIntList();
       private void ensureWordOffsetIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          wordOffset_ = new java.util.ArrayList<java.lang.Integer>(wordOffset_);
+        if (!((bitField0_ & 0x00000002) != 0)) {
+          wordOffset_ = mutableCopy(wordOffset_);
           bitField0_ |= 0x00000002;
          }
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @return A list containing the wordOffset.
        */
       public java.util.List<java.lang.Integer>
           getWordOffsetList() {
-        return java.util.Collections.unmodifiableList(wordOffset_);
+        return ((bitField0_ & 0x00000002) != 0) ?
+                 java.util.Collections.unmodifiableList(wordOffset_) : wordOffset_;
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @return The count of wordOffset.
        */
       public int getWordOffsetCount() {
         return wordOffset_.size();
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @param index The index of the element to return.
+       * @return The wordOffset at the given index.
        */
       public int getWordOffset(int index) {
-        return wordOffset_.get(index);
+        return wordOffset_.getInt(index);
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @param index The index to set the value at.
+       * @param value The wordOffset to set.
+       * @return This builder for chaining.
        */
       public Builder setWordOffset(
           int index, int value) {
         ensureWordOffsetIsMutable();
-        wordOffset_.set(index, value);
+        wordOffset_.setInt(index, value);
         onChanged();
         return this;
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @param value The wordOffset to add.
+       * @return This builder for chaining.
        */
       public Builder addWordOffset(int value) {
         ensureWordOffsetIsMutable();
-        wordOffset_.add(value);
+        wordOffset_.addInt(value);
         onChanged();
         return this;
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @param values The wordOffset to add.
+       * @return This builder for chaining.
        */
       public Builder addAllWordOffset(
           java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureWordOffsetIsMutable();
-        super.addAll(values, wordOffset_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, wordOffset_);
         onChanged();
         return this;
       }
       /**
        * <code>repeated uint32 wordOffset = 2;</code>
+       * @return This builder for chaining.
        */
       public Builder clearWordOffset() {
-        wordOffset_ = java.util.Collections.emptyList();
+        wordOffset_ = emptyIntList();
         bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.apache.accumulo.examples.wikisearch.protobuf.Info)
     }
 
+    // @@protoc_insertion_point(class_scope:org.apache.accumulo.examples.wikisearch.protobuf.Info)
+    private static final org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Info(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info();
     }
 
-    // @@protoc_insertion_point(class_scope:org.apache.accumulo.examples.wikisearch.protobuf.Info)
+    public static org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<Info>
+        PARSER = new com.google.protobuf.AbstractParser<Info>() {
+      @java.lang.Override
+      public Info parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Info(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Info> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Info> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.apache.accumulo.examples.wikisearch.protobuf.TermWeight.Info getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
   }
-  private static com.google.protobuf.Descriptors.FileDescriptor
+  private static  com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {
@@ -589,24 +749,16 @@ public final class TermWeight {
       "set\030\002 \003(\rB4\n0org.apache.accumulo.example" +
       "s.wikisearch.protobufH\001"
     };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor,
-              new java.lang.String[] { "NormalizedTermFrequency", "WordOffset", });
-          return null;
-        }
-      };
-    com.google.protobuf.Descriptors.FileDescriptor
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-        }, assigner);
+        });
+    internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_apache_accumulo_examples_wikisearch_protobuf_Info_descriptor,
+        new java.lang.String[] { "NormalizedTermFrequency", "WordOffset", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
