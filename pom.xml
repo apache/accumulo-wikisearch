@@ -42,30 +42,26 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <version.accumulo>2.0.1</version.accumulo>
     <version.collections>3.2.2</version.collections>
-    <version.commons-codec>1.5</version.commons-codec>
     <version.commons-configuration>1.10</version.commons-configuration>
-    <version.commons-configuration2>2.5</version.commons-configuration2>
     <version.commons-jexl>2.0.1</version.commons-jexl>
     <version.commons-lang>2.4</version.commons-lang>
-    <version.commons-lang3>3.9</version.commons-lang3>
-    <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
-    <version.guava>29.0-jre</version.guava>
     <version.hadoop>3.1.1</version.hadoop>
-    <version.htrace>3.2.0-incubating</version.htrace>
-    <version.jaxrs>2.1.0.GA</version.jaxrs>
-    <version.junit>4.13.1</version.junit>
     <version.kryo>1.04</version.kryo>
-    <version.log4j>1.2.16</version.log4j>
-    <version.log4j-extras>1.0</version.log4j-extras>
     <version.lucene>7.1.0</version.lucene>
     <version.lucene-analyzers>4.0.0</version.lucene-analyzers>
     <version.minlog>1.2</version.minlog>
     <version.protobuf>3.19.4</version.protobuf>
     <version.thrift>0.12.0</version.thrift>
-    <version.zookeeper>3.4.14</version.zookeeper>
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.apache.accumulo</groupId>
+        <artifactId>accumulo-project</artifactId>
+        <version>${version.accumulo}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>javaee</groupId>
         <artifactId>javaee-api</artifactId>
@@ -83,11 +79,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.htrace</groupId>
-        <artifactId>htrace-core</artifactId>
-        <version>${version.htrace}</version>
-      </dependency>
-      <dependency>
         <groupId>com.google.code.findbugs</groupId>
         <artifactId>jsr305</artifactId>
         <version>3.0.2</version>
@@ -96,47 +87,6 @@
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>${version.collections}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>2.5</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>1.1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-math3</artifactId>
-        <version>3.6.1</version>
-      </dependency>
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${version.junit}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-        <version>${version.zookeeper}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${version.log4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${version.guava}</version>
       </dependency>
       <dependency>
         <groupId>com.google.protobuf</groupId>
@@ -159,27 +109,6 @@
         <version>1.11</version>
       </dependency>
       <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-server</artifactId>
-        <version>1.11</version>
-        <exclusions>
-          <exclusion>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${version.commons-codec}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-configuration2</artifactId>
-        <version>${version.commons-configuration2}</version>
-      </dependency>
-      <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
         <version>${version.commons-configuration}</version>
@@ -188,21 +117,6 @@
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${version.commons-lang}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${version.commons-lang3}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.accumulo</groupId>
-        <artifactId>accumulo-core</artifactId>
-        <version>${version.accumulo}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.accumulo</groupId>
-        <artifactId>accumulo-trace</artifactId>
-        <version>${version.accumulo}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.accumulo</groupId>
@@ -250,36 +164,6 @@
         <groupId>org.checkerframework</groupId>
         <artifactId>checker-qual</artifactId>
         <version>2.11.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
-        <version>1.9.13</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-mapper-asl</artifactId>
-        <version>1.9.13</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>2.7.8</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>2.9.0</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>1.9.4</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
