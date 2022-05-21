@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.accumulo.core.client.lexicoder.Encoder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
@@ -37,17 +38,18 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public class GlobalIndexUidCombiner extends TypedValueCombiner<Uid.List> {
   public static final Encoder<Uid.List> UID_LIST_ENCODER = new UidListEncoder();
   public static final int MAX = 20;
-  
+
   @Override
-  public void init(SortedKeyValueIterator<Key,Value> source, Map<String,String> options, IteratorEnvironment env) throws IOException {
+  public void init(SortedKeyValueIterator<Key,Value> source, Map<String,String> options,
+      IteratorEnvironment env) throws IOException {
     super.init(source, options, env);
     setEncoder(UID_LIST_ENCODER);
   }
-  
+
   @Override
   public Uid.List typedReduce(Key key, Iterator<Uid.List> iter) {
     Uid.List.Builder builder = Uid.List.newBuilder();
-    HashSet<String> uids = new HashSet<String>();
+    HashSet<String> uids = new HashSet<>();
     boolean seenIgnore = false;
     long count = 0;
     while (iter.hasNext()) {
@@ -73,13 +75,13 @@ public class GlobalIndexUidCombiner extends TypedValueCombiner<Uid.List> {
     }
     return builder.build();
   }
-  
+
   public static class UidListEncoder implements Encoder<Uid.List> {
     @Override
     public byte[] encode(Uid.List v) {
       return v.toByteArray();
     }
-    
+
     @Override
     public Uid.List decode(byte[] b) {
       if (b.length == 0)

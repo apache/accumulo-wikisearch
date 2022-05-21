@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.accumulo.core.client.lexicoder.Encoder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
@@ -37,23 +38,24 @@ import com.google.protobuf.InvalidProtocolBufferException;
  * 
  */
 public class TextIndexCombiner extends TypedValueCombiner<TermWeight.Info> {
-  public static final Encoder<TermWeight.Info> TERMWEIGHT_INFO_ENCODER = new TermWeightInfoEncoder();
-  
+  public static final Encoder<TermWeight.Info> TERMWEIGHT_INFO_ENCODER =
+      new TermWeightInfoEncoder();
+
   @Override
   public TermWeight.Info typedReduce(Key key, Iterator<TermWeight.Info> iter) {
     TermWeight.Info.Builder builder = TermWeight.Info.newBuilder();
-    List<Integer> offsets = new ArrayList<Integer>();
+    List<Integer> offsets = new ArrayList<>();
     float normalizedTermFrequency = 0f;
-    
+
     while (iter.hasNext()) {
       TermWeight.Info info = iter.next();
       if (null == info)
         continue;
-      
+
       // Add each offset into the list maintaining sorted order
       for (int offset : info.getWordOffsetList()) {
         int pos = Collections.binarySearch(offsets, offset);
-        
+
         if (pos < 0) {
           // Undo the transform on the insertion point
           offsets.add((-1 * pos) - 1, offset);
@@ -61,33 +63,34 @@ public class TextIndexCombiner extends TypedValueCombiner<TermWeight.Info> {
           offsets.add(pos, offset);
         }
       }
-      
+
       if (info.getNormalizedTermFrequency() > 0) {
         normalizedTermFrequency += info.getNormalizedTermFrequency();
       }
     }
-    
+
     // Keep the sorted order we tried to maintain
-    for (int i = 0; i < offsets.size(); ++i) {
-      builder.addWordOffset(offsets.get(i));
+    for (Integer offset : offsets) {
+      builder.addWordOffset(offset);
     }
-    
+
     builder.setNormalizedTermFrequency(normalizedTermFrequency);
     return builder.build();
   }
-  
+
   @Override
-  public void init(SortedKeyValueIterator<Key,Value> source, Map<String,String> options, IteratorEnvironment env) throws IOException {
+  public void init(SortedKeyValueIterator<Key,Value> source, Map<String,String> options,
+      IteratorEnvironment env) throws IOException {
     super.init(source, options, env);
     setEncoder(TERMWEIGHT_INFO_ENCODER);
   }
-  
+
   public static class TermWeightInfoEncoder implements Encoder<TermWeight.Info> {
     @Override
     public byte[] encode(TermWeight.Info v) {
       return v.toByteArray();
     }
-    
+
     @Override
     public TermWeight.Info decode(byte[] b) {
       if (b.length == 0)
@@ -95,7 +98,8 @@ public class TextIndexCombiner extends TypedValueCombiner<TermWeight.Info> {
       try {
         return TermWeight.Info.parseFrom(b);
       } catch (InvalidProtocolBufferException e) {
-        throw new ValueFormatException("Value passed to aggregator was not of type TermWeight.Info");
+        throw new ValueFormatException(
+            "Value passed to aggregator was not of type TermWeight.Info");
       }
     }
   }

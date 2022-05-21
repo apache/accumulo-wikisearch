@@ -40,12 +40,14 @@
     <maven.compiler.release>8</maven.compiler.release>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <version.accumulo>2.0.0-alpha-2</version.accumulo>
+    <version.accumulo>2.0.1</version.accumulo>
     <version.collections>3.2.2</version.collections>
     <version.commons-codec>1.5</version.commons-codec>
     <version.commons-configuration>1.10</version.commons-configuration>
+    <version.commons-configuration2>2.5</version.commons-configuration2>
     <version.commons-jexl>2.0.1</version.commons-jexl>
     <version.commons-lang>2.4</version.commons-lang>
+    <version.commons-lang3>3.9</version.commons-lang3>
     <version.ejb-spec-api>1.0.1.Final</version.ejb-spec-api>
     <version.guava>29.0-jre</version.guava>
     <version.hadoop>3.1.1</version.hadoop>
@@ -58,7 +60,7 @@
     <version.lucene>7.1.0</version.lucene>
     <version.lucene-analyzers>4.0.0</version.lucene-analyzers>
     <version.minlog>1.2</version.minlog>
-    <version.protobuf>2.5.0</version.protobuf>
+    <version.protobuf>3.19.4</version.protobuf>
     <version.thrift>0.12.0</version.thrift>
     <version.zookeeper>3.4.14</version.zookeeper>
   </properties>
@@ -173,6 +175,11 @@
         <version>${version.commons-codec}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-configuration2</artifactId>
+        <version>${version.commons-configuration2}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
         <version>${version.commons-configuration}</version>
@@ -181,6 +188,11 @@
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${version.commons-lang}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${version.commons-lang3}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.accumulo</groupId>
@@ -228,6 +240,16 @@
             <artifactId>httpcore</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>2.3.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.checkerframework</groupId>
+        <artifactId>checker-qual</artifactId>
+        <version>2.11.1</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
