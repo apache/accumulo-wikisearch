@@ -50,7 +50,7 @@
     <version.lucene>7.1.0</version.lucene>
     <version.lucene-analyzers>4.0.0</version.lucene-analyzers>
     <version.minlog>1.2</version.minlog>
-    <version.protobuf>3.19.4</version.protobuf>
+    <version.protobuf>3.19.6</version.protobuf>
     <version.thrift>0.12.0</version.thrift>
   </properties>
   <dependencyManagement>
