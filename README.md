@@ -16,6 +16,8 @@ limitations under the License.
 -->
 # Apache Accumulo Wikisearch
 
+**NOTE: This project is deprecated. Contact the developer mailing list if there is interest in re-establishing support for this example Accumulo application using newer versions of Accumulo**
+
 Wikisearch is an example Accumulo application that provides a flexible, scalable
 search over Wikipedia articles.
 
